@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: polykube
+  namespace: {{namespace}}
+  annotations:
+    kubernetes.io/tls-acme: "true"
+spec:
+  tls:
+  - hosts:
+    - api.polykube.io
+    - polykube.io
+    secretName: polykube-tls
+  rules:
+  - host: polykube.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: frontend
+          servicePort: 80
+  - host: api.polykube.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: aspnet-api
+          servicePort: 80

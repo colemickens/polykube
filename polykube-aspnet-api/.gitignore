@@ -1,0 +1,5 @@
+_buildenv/dist/
+aspnet-api/bin/
+aspnet-api/obj/
+aspnet-api/project.lock.json
+.nuget-cache/

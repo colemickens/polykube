@@ -1,0 +1,63 @@
+#!/usr/bin/env groovy
+
+node {
+	///////////////////////////////////////////////////////
+
+	if (registry == "") {
+		registry = "localhost:5000"
+	}
+
+	echo "build parameters (after setting defaults):"
+	echo "registry: \"${registry}\""
+
+	///////////////////////////////////////////////////////
+
+	// START deleteDir workaround
+	// TODO: figure out how to find this path dynamically
+	workspace="/var/lib/jenkins/workspace/polykube"
+	sh("docker run -v ${workspace}:${workspace} busybox rm -rf ${workspace}/*")
+	// END deleteDir workaround
+
+	///////////////////////////////////////////////////////
+
+	checkout scm
+
+	withEnv(["REGISTRY=${registry}"]) {
+		stage('start') {
+			echo('Here we go...')
+		}
+
+		// TODO if we `make nocache`, it will dirty the checkout
+		// and VERSION will be wrong everywhere
+
+		//if nocache == "y" {
+		//	sh("make nocache")
+		//}
+
+		stage('build+push') {
+			parallel(
+				'aspnet-api-nginx': {
+					sh("export REGISTRY=$REGISTRY; make -C ./polykube-aspnet-api-nginx push")
+				},
+				'aspnet-api': {
+					sh("export REGISTRY=$REGISTRY; make -C ./polykube-aspnet-api push")
+				},
+				'frontend': {
+					sh("export REGISTRY=$REGISTRY; make -C ./polykube-frontend push")
+				},
+				'postgres': {
+					sh("export REGISTRY=$REGISTRY; make -C ./polykube-postgres push")
+				},
+				'redis': {
+					sh("export REGISTRY=$REGISTRY; make -C ./polykube-redis push")
+				},
+			)
+		}
+
+		stage('deploy') {
+			// TODO: this won't work if using the remote registry...
+			// needs to queue up the registry-proxy
+			sh("export REGISTRY=$REGISTRY; make -C ./deployment deploy-polykube")
+		}
+	}
+}

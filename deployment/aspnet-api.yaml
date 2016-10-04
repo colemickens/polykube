@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: List
+items:
+- kind: Deployment
+  apiVersion: extensions/v1beta1
+  metadata:
+    namespace: {{namespace}}
+    name: aspnet-api
+  spec:
+    replicas: 3
+    template:
+      metadata:
+        namespace: {{namespace}}
+        labels:
+          name: aspnet-api
+      spec:
+        containers:
+        - name: aspnet-api
+          image: {{repo}}/polykube-aspnet-api:{{version}}
+          imagePullPolicy: Always
+          # https://github.com/StackExchange/StackExchange.Redis/issues/410
+          command:
+            - 'bash'
+            - '-c'
+            - >
+              set -x;
+              POLYKUBE_REDIS_ADDRESS=$(getent hosts ${POLYKUBE_REDIS_ADDRESS}
+              | awk '{print $1}'); ls;
+              ./publish/aspnet-api
+          env:
+          - name: POLYKUBE_LISTEN_ADDRESS
+            value: '0.0.0.0'
+          - name: POLYKUBE_LISTEN_PORT
+            value: '8000'
+          - name: POLYKUBE_REDIS_ADDRESS
+            value: 'redis'
+          - name: POLYKUBE_REDIS_PORT
+            value: '6379'
+          - name: POLYKUBE_REDIS_PASSWORD_LOCATION
+            value: '/etc/polykube/redis-auth/password'
+          - name: POLYKUBE_DATABASE_DRIVER
+            value: "postgres"
+          - name: POLYKUBE_DATABASE_NAME
+            value: 'polykubedb'
+          - name: POLYKUBE_POSTGRES_ADDRESS
+            value: 'postgres'
+          - name: POLYKUBE_POSTGRES_PORT
+            value: '5432'
+          - name: POLYKUBE_POSTGRES_USERNAME
+            value: 'postgres'
+          - name: POLYKUBE_POSTGRES_PASSWORD_LOCATION
+            value: '/etc/polykube/postgres-auth/password'
+          volumeMounts:
+          - name: redis-auth-secret
+            mountPath: /etc/polykube/redis-auth
+            readOnly: true
+          - name: postgres-auth-secret
+            mountPath: /etc/polykube/postgres-auth
+            readOnly: true
+          ports:
+          - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /info
+              port: 8000
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /info
+              port: 8000
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+        - name: aspnet-nginx
+          image: {{repo}}/polykube-aspnet-api-nginx:{{version}}
+          imagePullPolicy: Always
+          env:
+          - name: LISTEN_PORT
+            value: '80'
+          - name: BACKEND_LOCATION
+            value: 'http://0.0.0.0:8000'
+          ports:
+          - containerPort: 80
+        volumes:
+        - name: redis-auth-secret
+          secret:
+            secretName: redis-auth
+        - name: postgres-auth-secret
+          secret:
+            secretName: postgres-auth
+- kind: Service
+  apiVersion: v1
+  metadata:
+    namespace: {{namespace}}
+    name: aspnet-api
+  spec:
+    selector:
+      name: aspnet-api
+    ports:
+    - port: 80
+      targetPort: 80
+    type: LoadBalancer
