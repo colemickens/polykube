@@ -16,7 +16,7 @@ items:
       spec:
         containers:
         - name: aspnet-api
-          image: {{repo}}/polykube-aspnet-api:{{version}}
+          image: {{registry}}/polykube-aspnet-api:{{version}}
           imagePullPolicy: Always
           # https://github.com/StackExchange/StackExchange.Redis/issues/410
           command:
@@ -72,7 +72,7 @@ items:
             initialDelaySeconds: 10
             timeoutSeconds: 1
         - name: aspnet-nginx
-          image: {{repo}}/polykube-aspnet-api-nginx:{{version}}
+          image: {{registry}}/polykube-aspnet-api-nginx:{{version}}
           imagePullPolicy: Always
           env:
           - name: LISTEN_PORT
@@ -99,4 +99,3 @@ items:
     ports:
     - port: 80
       targetPort: 80
-    type: LoadBalancer

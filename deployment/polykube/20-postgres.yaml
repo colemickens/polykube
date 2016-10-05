@@ -24,7 +24,7 @@ items:
       spec:
         containers:
         - name: postgres
-          image: {{repo}}/polykube-postgres:{{version}}
+          image: {{registry}}/polykube-postgres:{{version}}
           imagePullPolicy: Always
           volumeMounts:
           - name: postgres-auth-secret

@@ -24,7 +24,7 @@ items:
       spec:
         containers:
         - name: redis
-          image: {{repo}}/polykube-redis:{{version}}
+          image: {{registry}}/polykube-redis:{{version}}
           imagePullPolicy: Always
           volumeMounts:
           - name: redis-auth-secret

@@ -1,15 +1,48 @@
 # polykube
 
-This application serves an example of a full-stack application built for Kubernetes.
+## Overview
+
+This is an example of a full stack application ready to be deployed into a Kubernetes cluster.
+
+The application is running at [polykube.io](https://polykube.io) and [api.polykube.io](https://api.polykube.io/counter).
 
 See [demo](DEMO.md) for instructions on deploying this application to a Kubernetes cluster.
 
-The application is running at [polykube.io](http://polykube.io) and [api.polykube.io](http://api.polykube.io/counter).
+## Prerequisites
+
+1. `make`
+2. `docker` (only tested on Linux)
+3. `kubectl` (linux: amd64) (darwin: amd64) (windows: amd64)
+4. `kubectl` configured with a functional Kubernetes cluster
+
+## Layout
+
+Each component has, where applicable:
+- a `make dev` command to enter a development environment ready to immediately build/run/test
+- a `make dbuild` command to build using a container
+- a `make container` command to build the "production" container that will be deploy
+- a `make push` command to push the image to the registry, specified by `$REGISTRY`
+
+## Deployment
+
+This will build, push, and deploy everything. (And it's idempotent):
+
+```shell
+make magic
+```
+
+I recommend you fall down the rabbit hole of Makefiles. It helps explain how pieces fit together.
 
 ## TODO
-
   0. Finish the frontend. (Angular2)
+  1. move dotnet dns hack out of kube deploy files and into C#
 
+
+---
+
+# OLD README
+
+---
 
 ## Features
   0. **Docker:** Minimal production containers including only the application (no source code, no build tools, etc)
@@ -52,8 +85,3 @@ The application is running at [polykube.io](http://polykube.io) and [api.polykub
 
    Uses the Cluster DNS addon to resolve services at runtime in cluster.
    (The dotnet api simply connects to postgres via `tcp://db:5432`, redis via `tcp://redis:6379`, etc.)
-
-## Fine Print
-
-  * This is a work-in-progress
-  * I will be resetting `master` and the repo history regularly
