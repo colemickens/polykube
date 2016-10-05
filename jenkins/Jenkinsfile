@@ -57,7 +57,10 @@ node {
 		stage('deploy') {
 			// TODO: this won't work if using the remote registry...
 			// needs to queue up the registry-proxy
-			sh("export REGISTRY=$REGISTRY; make -C ./deployment deploy-polykube")
+			withCredentials([[$class: 'FileBinding', credentialsId: 'kubeconfig', variable: 'KUBECONFIG']]) {
+
+				sh("export REGISTRY=$REGISTRY; make -C ./deployment deploy-polykube")
+			}
 		}
 	}
 }

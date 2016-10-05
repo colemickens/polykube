@@ -1,4 +1,5 @@
-TEMPDIR = $(shell mktemp -d)
+.NOTPARALLEL:
+
 VERSION ?= $(shell git describe --always --dirty)
 NAMESPACE ?= polykube
 REDIS_PASSWORD ?= password
@@ -11,28 +12,27 @@ endif
 _:
 	${info Must specify a command.}
 
-deploy-all: | deploy-registry deploy-monitoring deploy-logging deploy-kube-lego wait-kube-lego deploy-polykube
+deploy-all: | deploy-registry deploy-monitoring deploy-logging deploy-kube-lego deploy-polykube
 
 deploy-polykube:
-	$(eval TEMPDIR = $(shell mktemp -d))
-	cp *.yaml $(TEMPDIR)/
+	$(eval TEMPDIR := $(shell mktemp -d))
+	cp *.yaml $(TEMPDIR)
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{namespace}}|$(NAMESPACE)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{repo}}|$(REGISTRY)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{postgres_password}}|$(POSTGRES_PASSWORD)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{redis_password}}|$(REDIS_PASSWORD)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{version}}|$(VERSION)|g"
 	kubectl apply -f $(TEMPDIR)
-	$(shell rm -rf $(TEMPDIR))
+	rm -rf $(TEMPDIR)
 
 deploy-registry:
-	kubectl apply -f addons/kube-registry/
+	find addons/kube-registry/ -type f -name "*.yaml" -exec kubectl apply -f {} \;
 deploy-monitoring:
-	kubectl apply -f addons/kube-monitoring/
+	find addons/kube-monitoring/ -type f -name "*.yaml" -exec kubectl apply -f {} \;
 deploy-logging:
-	kubectl apply -f addons/kube-logging/
+	find addons/kube-logging/ -type f -name "*.yaml" -exec kubectl apply -f {} \;
 deploy-kube-lego:
-	kubectl apply -f addons/kube-lego/
-wait-kube-lego:
+	find addons/kube-lego/ -type f -name "*.yaml" -exec kubectl apply -f {} \;
 	export kube_lego_ip=""; \
 	while : ; do \
 		kube_lego_ip=$$(kubectl get svc nginx --namespace=nginx-ingress --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}"); \
