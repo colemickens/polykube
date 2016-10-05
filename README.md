@@ -12,8 +12,8 @@ See [demo](DEMO.md) for instructions on deploying this application to a Kubernet
 
 1. `make`
 2. `docker` (only tested on Linux)
-3. `kubectl` (linux: amd64) (darwin: amd64) (windows: amd64)
-4. `kubectl` configured with a functional Kubernetes cluster
+3. `kubectl` (must be pointed at a healthy Kubernetes cluster) (linux: amd64) (darwin: amd64) (windows: amd64)
+5. `cfcli` (optional, used for full DNS/SSL automation) (`npm install -g cfcli`)
 
 ## Layout
 
@@ -31,7 +31,7 @@ This will build, push, and deploy everything. (And it's idempotent):
 make magic
 ```
 
-I recommend you fall down the rabbit hole of Makefiles. It helps explain how pieces fit together.
+I recommend you explore the rabbit hole of Makefiles. It helps explain how pieces fit together.
 
 ## TODO
   0. Finish the frontend. (Angular2)

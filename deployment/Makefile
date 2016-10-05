@@ -13,7 +13,7 @@ _:
 	${info Must specify a command.}
 
 # NOTE: kube-registry is not included by default
-deploy-all: | deploy-kube-lego deploy-logging deploy-monitoring deploy-polykube wait-kube-lego
+deploy-all: | deploy-kube-lego deploy-logging deploy-monitoring deploy-polykube wait-kube-lego set-cf-ip
 
 deploy-polykube:
 	$(eval TEMPDIR := $(shell mktemp -d))
@@ -40,6 +40,10 @@ wait-kube-lego:
 		kube_lego_ip=$$(kubectl get svc nginx --namespace=nginx-ingress --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}"); \
 		[ -z "$${kube_lego_ip}" ] || break; sleep 5; \
 	done
+
+set-cf-ip:
+	kube_lego_ip=$$(kubectl get svc nginx --namespace=nginx-ingress --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}"); \
+	[ ! -z "$${kube_lego_ip}" ] && which cfcli &>/dev/null && cfcli -t A editrecord polykube.io $${kube_lego_ip} || true
 
 clean-all: | clean-registry clean-monitoring clean-logging clean-kube-lego clean-polykube
 clean-registry:
