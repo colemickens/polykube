@@ -1,5 +1,7 @@
 .NOTPARALLEL:
 
+KUBECTL := $(shell command -v kubectl 2> /dev/null)
+
 VERSION ?= $(shell git describe --always --dirty)
 NAMESPACE ?= polykube
 REDIS_PASSWORD ?= password
@@ -7,6 +9,9 @@ POSTGRES_PASSWORD ?= password
 
 ifndef REGISTRY
     $(error REGISTRY is required to be set)
+endif
+ifndef KUBECTL
+    $(error kubectl must be availabe on the PATH)
 endif
 
 _:
