@@ -15,13 +15,12 @@ endif
 _:
 	${info Must specify a command.}
 
-# NOTE: kube-registry is not included by default
 deploy-all: | deploy-kube-lego deploy-logging deploy-monitoring deploy-polykube wait-kube-lego set-cf-ip
 
 deploy-polykube:
 	$(eval TEMPDIR := $(shell mktemp -d))
-	$(eval REDIS_PASSWORD ?= $(shell echo secretpassword | base64 -w 0))
-	$(eval POSTGRES_PASSWORD ?= $(shell echo secretpassword | base64 -w 0))
+	$(eval REDIS_PASSWORD ?= $(shell echo secretpassword))
+	$(eval POSTGRES_PASSWORD ?= $(shell echo secretpassword))
 	$(eval REDIS_PASSWORD_BASE64 := $(shell echo $(REDIS_PASSWORD) | base64 -w 0))
 	$(eval POSTGRES_PASSWORD_BASE64 := $(shell echo $(POSTGRES_PASSWORD) | base64 -w 0))
 	echo $(POSTGRES_PASSWORD)
@@ -35,8 +34,6 @@ deploy-polykube:
 	kubectl apply -f $(TEMPDIR)
 	rm -rf $(TEMPDIR)
 
-deploy-registry:
-	$(call kubectl_dir, apply, addons/kube-registry/)
 deploy-monitoring:
 	$(call kubectl_dir, apply, addons/kube-monitoring/)
 deploy-logging:
