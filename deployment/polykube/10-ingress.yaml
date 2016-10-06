@@ -8,18 +8,18 @@ metadata:
 spec:
   tls:
   - hosts:
-    - api.polykube.io
-    - polykube.io
+    - api.{{domain}}
+    - {{domain}}
     secretName: polykube-tls
   rules:
-  - host: {{hostname}}
+  - host: {{domain}}
     http:
       paths:
       - path: /
         backend:
           serviceName: frontend
           servicePort: 80
-  - host: api.{{hostname}}
+  - host: api.{{domain}}
     http:
       paths:
       - path: /

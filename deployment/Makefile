@@ -4,7 +4,13 @@ KUBECTL := $(shell command -v kubectl 2> /dev/null)
 
 VERSION ?= $(shell git describe --always --dirty)
 NAMESPACE ?= polykube
-NAMESPACE ?= polykube.io
+DOMAIN ?= polykube.io
+
+## Todo: to allow subdomains to skirt LE limits, I can set DOMAIN = {random}.polykube.io
+## however, CF records are based on everything CNAME'd to @, so we want to set the base record still
+## hence the new "BASE_DOMAIN". This sucks though. Could maybe auto infer the last  two sections are the base domain?
+## Even that assumes that "everyone" will use the same CNAME setup that I use...
+BASE_DOMAIN ?= polykube.io
 
 ifndef REGISTRY
     $(error REGISTRY is required to be set)
@@ -32,7 +38,7 @@ deploy-polykube:
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{postgres_password}}|$(POSTGRES_PASSWORD_BASE64)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{redis_password}}|$(REDIS_PASSWORD_BASE64)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{version}}|$(VERSION)|g"
-	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{hostname}}|$(HOSTNAME)|g"
+	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{domain}}|$(DOMAIN)|g"
 	kubectl apply -f $(TEMPDIR)
 	rm -rf $(TEMPDIR)
 
@@ -51,7 +57,7 @@ wait-kube-lego:
 
 set-cf-ip:
 	kube_lego_ip=$$(kubectl get svc nginx --namespace=nginx-ingress --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}"); \
-	[ ! -z "$${kube_lego_ip}" ] && which cfcli &>/dev/null && cfcli -t A editrecord polykube.io $${kube_lego_ip} || true
+	[ ! -z "$${kube_lego_ip}" ] && which cfcli &>/dev/null && cfcli -d $(BASE_DOMAIN) -t A editrecord $(BASE_DOMAIN) $${kube_lego_ip} || true
 
 clean-all: | clean-registry clean-monitoring clean-logging clean-kube-lego clean-polykube
 clean-registry:
