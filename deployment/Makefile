@@ -4,8 +4,6 @@ KUBECTL := $(shell command -v kubectl 2> /dev/null)
 
 VERSION ?= $(shell git describe --always --dirty)
 NAMESPACE ?= polykube
-REDIS_PASSWORD ?= password
-POSTGRES_PASSWORD ?= password
 
 ifndef REGISTRY
     $(error REGISTRY is required to be set)
@@ -22,11 +20,17 @@ deploy-all: | deploy-kube-lego deploy-logging deploy-monitoring deploy-polykube 
 
 deploy-polykube:
 	$(eval TEMPDIR := $(shell mktemp -d))
+	$(eval REDIS_PASSWORD ?= $(shell echo secretpassword | base64 -w 0))
+	$(eval POSTGRES_PASSWORD ?= $(shell echo secretpassword | base64 -w 0))
+	$(eval REDIS_PASSWORD_BASE64 := $(shell echo $(REDIS_PASSWORD) | base64 -w 0))
+	$(eval POSTGRES_PASSWORD_BASE64 := $(shell echo $(POSTGRES_PASSWORD) | base64 -w 0))
+	echo $(POSTGRES_PASSWORD)
+	echo $(REDIS_PASSWORD)
 	cp polykube/*.yaml $(TEMPDIR)
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{namespace}}|$(NAMESPACE)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{registry}}|$(REGISTRY)|g"
-	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{postgres_password}}|$(POSTGRES_PASSWORD)|g"
-	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{redis_password}}|$(REDIS_PASSWORD)|g"
+	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{postgres_password}}|$(POSTGRES_PASSWORD_BASE64)|g"
+	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{redis_password}}|$(REDIS_PASSWORD_BASE64)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{version}}|$(VERSION)|g"
 	kubectl apply -f $(TEMPDIR)
 	rm -rf $(TEMPDIR)

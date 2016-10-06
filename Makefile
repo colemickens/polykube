@@ -1,3 +1,5 @@
+.NOTPARALLEL:
+
 _:
 	${info Specify a command: (doit, no-cache-ify)}
 
@@ -15,7 +17,7 @@ push-all:
 	$(MAKE) -C ./polykube-redis push
 
 deploy:
-	$(MAKE) -C ./deployment
+	$(MAKE) -C ./deployment deploy-all
 
 _magic-prep:
 

@@ -123,6 +123,8 @@ namespace Api
 
                 var connectionString = $"{server}:{port},password={password}";
 
+                Console.WriteLine($"REDIS CONNECTION STRING = {connectionString}");
+
                 var redis = ConnectionMultiplexer.Connect(connectionString, connectionOutput);
                 var db = redis.GetDatabase();
                 return db;
