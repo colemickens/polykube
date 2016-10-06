@@ -4,6 +4,7 @@ KUBECTL := $(shell command -v kubectl 2> /dev/null)
 
 VERSION ?= $(shell git describe --always --dirty)
 NAMESPACE ?= polykube
+NAMESPACE ?= polykube.io
 
 ifndef REGISTRY
     $(error REGISTRY is required to be set)
@@ -31,6 +32,7 @@ deploy-polykube:
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{postgres_password}}|$(POSTGRES_PASSWORD_BASE64)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{redis_password}}|$(REDIS_PASSWORD_BASE64)|g"
 	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{version}}|$(VERSION)|g"
+	find "$(TEMPDIR)" -name "*.yaml" -print0 | xargs -0 sed -i -e "s|{{hostname}}|$(HOSTNAME)|g"
 	kubectl apply -f $(TEMPDIR)
 	rm -rf $(TEMPDIR)
 

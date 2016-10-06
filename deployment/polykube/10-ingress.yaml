@@ -12,14 +12,14 @@ spec:
     - polykube.io
     secretName: polykube-tls
   rules:
-  - host: polykube.io
+  - host: {{hostname}}
     http:
       paths:
       - path: /
         backend:
           serviceName: frontend
           servicePort: 80
-  - host: api.polykube.io
+  - host: api.{{hostname}}
     http:
       paths:
       - path: /
