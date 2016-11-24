@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repositor is an example of a "full stack application" ready to be deployed into a Kubernetes cluster.
+This repository is an example of a "full stack application" (a *very* simple Guest Book), which is ready to be deployed into a Kubernetes cluster.
 
 The `README` walks through deployment of:
 
@@ -14,6 +14,7 @@ Next, the service's components are deployed on the Kubernetes cluster:
   * an [AspNetCore](https://docs.microsoft.com/en-us/aspnet/core/) application powered by [.NET Core](https://www.microsoft.com/net/core)
   * a [Redis](http://redis.io/) instance, used as a cache in the AspNetCore application
   * a(n) [SQL Server for Linux](https://www.microsoft.com/en-us/sql-server/sql-server-vnext-including-Linux) instance, used a the persistent store for the AspNetCore application
+  * an Angular2 frontend
 
 Some other features of note (largely just features of Kubernetes):
 
@@ -24,6 +25,11 @@ Some other features of note (largely just features of Kubernetes):
 ## Demo
 
 ~~The application is running at [polykube.io](https://polykube.io) and [api.polykube.io](https://api.polykube.io/counter).~~
+
+This is an [Asciinema presentation]() that shows these steps, from scratch, in realtime.
+From having *nothing* deployed in Azure, to having this exposed to the world takes less than 15 minutes:
+
+`[ insert asciinema screenshot link here ]`
 
 ## Prerequisites
 
