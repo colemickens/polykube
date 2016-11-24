@@ -57,7 +57,7 @@ wait-kube-lego:
 
 set-cf-ip:
 	kube_lego_ip=$$(kubectl get svc nginx --namespace=nginx-ingress --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}"); \
-	[ ! -z "$${kube_lego_ip}" ] && which cfcli &>/dev/null && cfcli -d $(BASE_DOMAIN) -t A editrecord $(BASE_DOMAIN) $${kube_lego_ip} || true
+	[ ! -z "$${kube_lego_ip}" ] && which cfcli &>/dev/null && cfcli -d $(BASE_DOMAIN) -t A editrecord $(DOMAIN) $${kube_lego_ip} || true
 
 clean-all: | clean-registry clean-monitoring clean-logging clean-kube-lego clean-polykube
 clean-registry:
