@@ -22,12 +22,12 @@ Next, the service's components are deployed on the Kubernetes cluster:
 
 ~~The application is running at [polykube.io](https://polykube.io) and [api.polykube.io](https://api.polykube.io/counter).~~
 
-This is an [Asciinema presentation]() that shows these steps, from scratch, in realtime.
-From having *nothing* deployed in Azure, to having this exposed to the world takes less than 15 minutes:
+~~This is an [Asciinema presentation]() that shows these steps, from scratch, in realtime.
+From having *nothing* deployed in Azure, to having this exposed to the world takes less than 15 minutes:~~
 
-`[ insert asciinema screenshot link here ]`
+~~`[ insert asciinema screenshot link here ]`~~
 
-There is also [a less real-time version with the waits removed]().
+~~There is also [a less real-time version with the waits removed]().~~
 
 ## Prerequisites
 
