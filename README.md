@@ -2,20 +2,24 @@
 
 ## Overview
 
-This repository an example of a full stack application ready to be deployed into a Kubernetes cluster.
+This repositor is an example of a "full stack application" ready to be deployed into a Kubernetes cluster.
 
 The README walks through deployment of:
 
   * a [Kubernetes]() cluster on the [Azure Container Service]()
   * a private Docker registry hosted by [Azure Container Registry]()
 
-Next, these are deployed on the Kubernetes cluster:
+Next, the service's components are deployed on the Kubernetes cluster:
 
   * an [AspNetCore]() application powered by [.NET Core]()
   * a [Redis]() instance, used as a cache in the AspNetCore application
   * a [SQL Server for Linux]() instance, used a the persistent store for the AspNetCore application
 
-The SQL Server instance will store its data in an Azure VHD, via [Dynamic Disk Provisioning functionality in Kubernetes]().
+Some other features of note (largely just features of Kubernetes):
+
+  * SQL Server's data is stored in stored in an Azure VHD, via [Dynamic Disk Provisioning functionality in Kubernetes]().
+  * The application will be automatically exposed to the public Internet via an Azure Load Balancer, all completely automatically.
+  * Rolling updates to an entire cluster with a single command and a matter of seconds (or minutes depending on how many instances)
 
 ## Demo
 
