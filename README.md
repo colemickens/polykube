@@ -35,6 +35,7 @@ From having *nothing* deployed in Azure, to having this exposed to the world tak
 1. `make`
 2. `docker`
 3. `kubectl` ([linux: amd64](https://storage.googleapis.com/kubernetes-release/release/v1.4.6/bin/linux/amd64/kubectl)) ([darwin: amd64](https://storage.googleapis.com/kubernetes-release/release/v1.4.6/bin/darwin/amd64/kubectl)) ([windows: amd64](https://storage.googleapis.com/kubernetes-release/release/v1.4.6/bin/windows/amd64/kubectl.exe))
+4. `az`, the [Azure CLI](https://github.com/Azure/azure-cli), aka, *"the new Python Azure CLI"*, not the nodejs, azure-xplat-cli.
 
 ## Principles
 
@@ -62,12 +63,16 @@ From having *nothing* deployed in Azure, to having this exposed to the world tak
 This will perform all steps automatically:
 
 ```shell
-$ export CLUSTER_NAME=colemick-polykube1
-$ ./magic.sh
+export CLUSTER_NAME=colemick-polykube1
+./magic.sh
+```
+
+With expected output:
+```shell
+# output:
 # ...
-# ... lots of output ...
 # ...
-`polykube` is live at: http://1.2.3.4
+# `polykube` is live at: http://1.2.3.4
 ```
 
 ## Deployment (Manual)
