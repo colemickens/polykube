@@ -17,5 +17,6 @@ RUN apt-get update -qq \
 
 RUN npm install -g angular-cli
 
-WORKDIR /polykube-frontend
-CMD /bin/bash
+ADD . /polykube-frontend/source
+WORKDIR /polykube-frontend/source
+CMD /usr/bin/env bash

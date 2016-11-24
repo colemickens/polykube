@@ -1,0 +1,5 @@
+.nuget-cache/
+_buildenv/
+Makefile
+**/bin/
+**/obj/

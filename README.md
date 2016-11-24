@@ -71,7 +71,6 @@ With expected output:
 ```shell
 # output:
 # ...
-# ...
 # `polykube` is live at: http://1.2.3.4
 ```
 

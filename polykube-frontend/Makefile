@@ -8,30 +8,23 @@ PROJECT = polykube-frontend
 IMAGE_DEVENV = $(PROJECT)-devenv
 IMAGE_FINAL = $(REGISTRY)/$(PROJECT):$(VERSION)
 
-prep:
-	npm install
+devenv:
+	docker build --pull -t $(IMAGE_DEVENV) ./source
+	docker run -it -p 0.0.0.0:9999:9999 -p 0.0.0.0:9998:9998 \
+		-v $(CURDIR)/source:/$(PROJECT)/source \
+		-v $(CURDIR)/.node_modules-cache:/$(PROJECT)/source/node_modules \
+			$(IMAGE_DEVENV) /bin/bash || true
 
-build: prep
-	ng build -prod
+dist:
+	docker build --pull -t $(IMAGE_DEVENV) ./source
+	docker rm -f $(PROJECT) || true
+	docker run -it --name=$(PROJECT) $(IMAGE_DEVENV) bash ./build.sh
+	rm -rf image/dist
+	docker cp $(PROJECT):/$(PROJECT)/dist image/
 
-serve:
-	ng serve --host 0.0.0.0 --port 9999 --live-reload-host 0.0.0.0 --live-reload-port 9998;
-
-_devenv-build:
-	cd _devenv; docker build --pull -t $(IMAGE_DEVENV) .
-
-devenv: _devenv-build
-	docker run -it -p 0.0.0.0:9999:9999 -p 0.0.0.0:9998:9998 -v $(CURDIR):/$(PROJECT) $(IMAGE_DEVENV) /bin/bash || true
-
-dbuild: _devenv-build
-	docker run -v $(CURDIR):/$(PROJECT) $(IMAGE_DEVENV) make build
-
-image: dbuild
-	(\
-		cd _buildenv; mkdir -p dist \
-		&& cp -a ../dist/* ./dist/ \
-		&& docker build -t $(IMAGE_FINAL) . \
-	)
+image: dist
+	cd image && \
+	docker build -t $(IMAGE_FINAL) .
 
 instance: image
 	docker run -it -p 0.0.0.0:9999:80 $(IMAGE_FINAL)
