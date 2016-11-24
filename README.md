@@ -48,6 +48,7 @@ From having *nothing* deployed in Azure, to having this exposed to the world tak
  * Final container images are built by first doing a containerized build of the project,
    and then placing the build output into the final container image.
  * Final containers created for the service are as minimal as possible.
+   (The dotnet api simply connects to postgres via `tcp://db:5432`, redis via `tcp://redis:6379`, etc.)
    No development-time dependencies are included.
    For example, this means that the final AspNetCore containers do not have the SDK
    and tooling installed in them. This reduces image size and speeds up deployment.
@@ -64,7 +65,7 @@ This will perform all steps automatically:
 $ export CLUSTER_NAME=colemick-polykube1
 $ ./magic.sh
 # ...
-# [... lots of output ...]
+# ... lots of output ...
 # ...
 `polykube` is live at: http://1.2.3.4
 ```
