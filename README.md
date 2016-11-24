@@ -33,7 +33,23 @@ From having *nothing* deployed in Azure, to having this exposed to the world tak
 
 1. `make`
 2. `docker`
-3. `kubectl` ([linux: amd64]()) ([darwin: amd64]()) ([windows: amd64]())
+3. `kubectl` ([linux: amd64](https://storage.googleapis.com/kubernetes-release/release/v1.4.6/bin/linux/amd64/kubectl)) ([darwin: amd64](https://storage.googleapis.com/kubernetes-release/release/v1.4.6/bin/darwin/amd64/kubectl)) ([windows: amd64](https://storage.googleapis.com/kubernetes-release/release/v1.4.6/bin/windows/amd64/kubectl.exe))
+
+## Principles
+
+ * Anyone can hack on this project, with a single command
+   `./devenv.sh` (or even `.\devenv.ps1`)
+   This command drops you in a development environment with any and all
+   SDKs installed, ready to use.
+ * Each project requiring a real build, can be built in the development
+   environment with `./build.sh` in the project directory.
+ * All container image builds are doone by first performing the builds are done inside containers for portability and reproducability
+ * Final container images are built by first doing a containerized build of the project,
+   and then placing the build output into the final container image.
+ * All containers used in the service are as minimal as possible.
+   No development-time dependencies are included.
+   For example, this means that the final AspNetCore containers do not have the SDK
+   and tooling installed in them. This reduces image size and speeds up deployment.
 
 ## Layout
 
@@ -43,13 +59,16 @@ Each component has, where applicable:
 - a `make container` command to build the "production" container that will be deploy
 - a `make push` command to push the image to the registry, specified by `$REGISTRY`
 
-## Deployment
+## Deployment (Automatic)
 
-This will build, push, and deploy everything. (And it's idempotent):
+This will perform all steps automatically:
 
 ```shell
-make magic
+export CLUSTER_NAME=colemick-polykube1
+./magic.sh
 ```
+
+## Deployment (Manual)
 
 I recommend you explore the rabbit hole of Makefiles. It helps explain how pieces fit together.
 
