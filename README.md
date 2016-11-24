@@ -14,13 +14,9 @@ Next, the service's components are deployed on the Kubernetes cluster:
   * an [AspNetCore](https://docs.microsoft.com/en-us/aspnet/core/) application powered by [.NET Core](https://www.microsoft.com/net/core)
   * a [Redis](http://redis.io/) instance, used as a cache in the AspNetCore application
   * a(n) [SQL Server for Linux](https://www.microsoft.com/en-us/sql-server/sql-server-vnext-including-Linux) instance, used a the persistent store for the AspNetCore application
-  * an Angular2 frontend
-
-Some other features of note (largely just features of Kubernetes):
-
-  * SQL Server's data is stored in stored in an Azure VHD, via [Dynamic Disk Provisioning functionality in Kubernetes]().
-  * The application will be automatically exposed to the public Internet via an Azure Load Balancer, all completely automatically.
-  * Rolling updates to an entire cluster with a single command and a matter of seconds (or minutes depending on how many instances)
+  * an [Angular2 frontend](https://angular.io/) with [Material UI components](https://material.angular.io/)
+  * a Kubernetes [Ingress object] with a [Service]() that will result in the application being available to the Internet via
+    an [Azure Load Balancer](https://docs.microsoft.com/en-us/azure/load-balancer/load-balancer-overview) and `nginx` (via the [nginx-ingress-controller]()).
 
 ## Demo
 
@@ -31,12 +27,13 @@ From having *nothing* deployed in Azure, to having this exposed to the world tak
 
 `[ insert asciinema screenshot link here ]`
 
+There is also [a less real-time version with the waits removed]().
+
 ## Prerequisites
 
 1. `make`
-2. `docker` (only tested on Linux)
-3. `kubectl` (must be pointed at a healthy Kubernetes cluster) (linux: amd64) (darwin: amd64) (windows: amd64)
-5. `cfcli` (optional, used for full DNS/SSL automation) (`npm install -g cfcli`)
+2. `docker`
+3. `kubectl` ([linux: amd64]()) ([darwin: amd64]()) ([windows: amd64]())
 
 ## Layout
 
