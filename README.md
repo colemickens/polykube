@@ -2,11 +2,24 @@
 
 ## Overview
 
-This is an example of a full stack application ready to be deployed into a Kubernetes cluster.
+This repository an example of a full stack application ready to be deployed into a Kubernetes cluster.
 
-The application is running at [polykube.io](https://polykube.io) and [api.polykube.io](https://api.polykube.io/counter).
+The README walks through deployment of:
 
-See [demo](DEMO.md) for instructions on deploying this application to a Kubernetes cluster.
+  * a [Kubernetes]() cluster on the [Azure Container Service]()
+  * a private Docker registry hosted by [Azure Container Registry]()
+
+Next, these are deployed on the Kubernetes cluster:
+
+  * an [AspNetCore]() application powered by [.NET Core]()
+  * a [Redis]() instance, used as a cache in the AspNetCore application
+  * a [SQL Server for Linux]() instance, used a the persistent store for the AspNetCore application
+
+The SQL Server instance will store its data in an Azure VHD, via [Dynamic Disk Provisioning functionality in Kubernetes]().
+
+## Demo
+
+~~The application is running at [polykube.io](https://polykube.io) and [api.polykube.io](https://api.polykube.io/counter).~~
 
 ## Prerequisites
 
