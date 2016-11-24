@@ -50,6 +50,10 @@ From having *nothing* deployed in Azure, to having this exposed to the world tak
    No development-time dependencies are included.
    For example, this means that the final AspNetCore containers do not have the SDK
    and tooling installed in them. This reduces image size and speeds up deployment.
+ * Respect the ["docker build container pattern"](http://blog.slashdeploy.com/2016/11/07/docker-build-container-pattern/).
+   As a summary, this means that containerized build output is owned by the correct user (not root)
+   and it means the containerized final build process can be run even in configurations where the `docker` daemon is
+   running remotely (like a really powerful remote Azure VM).
 
 ## Deployment (Automatic)
 
@@ -64,7 +68,7 @@ export CLUSTER_NAME=colemick-polykube1
 
 (For now, read `./magic.sh` and see how it works.)
 
-## TODO
+## Todo
   0. Finish the frontend for the third time. (Angular2)
   1. move dotnet dns hack out of kube deploy files and into C#
 
