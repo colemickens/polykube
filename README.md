@@ -4,16 +4,16 @@
 
 This repositor is an example of a "full stack application" ready to be deployed into a Kubernetes cluster.
 
-The README walks through deployment of:
+The `README` walks through deployment of:
 
-  * a [Kubernetes]() cluster on the [Azure Container Service]()
-  * a private Docker registry hosted by [Azure Container Registry]()
+  * a [Kubernetes](http://kubernetes.io/) cluster on the [Azure Container Service](https://azure.microsoft.com/en-us/services/container-service/)
+  * a private Docker registry hosted by [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/)
 
 Next, the service's components are deployed on the Kubernetes cluster:
 
-  * an [AspNetCore]() application powered by [.NET Core]()
-  * a [Redis]() instance, used as a cache in the AspNetCore application
-  * a [SQL Server for Linux]() instance, used a the persistent store for the AspNetCore application
+  * an [AspNetCore](https://docs.microsoft.com/en-us/aspnet/core/) application powered by [.NET Core](https://www.microsoft.com/net/core)
+  * a [Redis](http://redis.io/) instance, used as a cache in the AspNetCore application
+  * a(n) [SQL Server for Linux](https://www.microsoft.com/en-us/sql-server/sql-server-vnext-including-Linux) instance, used a the persistent store for the AspNetCore application
 
 Some other features of note (largely just features of Kubernetes):
 
