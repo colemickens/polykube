@@ -9,6 +9,7 @@ namespace Api.DataAccess
     {
         public DataContext(DbContextOptions options) : base(options)
         {
+            Console.WriteLine("new data context");
         }
 
         public DbSet<GuestbookEntryModel> GuestbookEntries { get; set; }

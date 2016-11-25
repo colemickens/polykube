@@ -1,7 +1,8 @@
 .NOTPARALLEL:
+.PHONY: devenv dist image instance push
 
 CURDIR = $(shell pwd)
-REGISTRY ?= localhost:5000
+REGISTRY ?= 127.0.0.1:5000
 VERSION ?= $(shell git describe --always --dirty)
 
 PROJECT = polykube-aspnet-api
@@ -10,7 +11,16 @@ IMAGE_FINAL = $(REGISTRY)/$(PROJECT):$(VERSION)
 
 devenv:
 	docker build --pull -t $(IMAGE_DEVENV) ./source
-	docker run -it -p 0.0.0.0:8000:8000 \
+	docker run -it --net=host \
+		--env=LISTEN_PORT=9080 \
+		--env=REDIS_HOST=127.0.0.1 \
+		--env=REDIS_PORT=6379 \
+		--env=REDIS_PASSWORD=redis \
+		--env=POSTGRES_HOST=127.0.0.1 \
+		--env=POSTGRES_PORT=5432 \
+		--env=POSTGRES_DATABASE_NAME=polykubedb \
+		--env=POSTGRES_USERNAME=postgres \
+		--env=POSTGRES_PASSWORD=postgres \
 		-v $(CURDIR)/source:/$(PROJECT)/source \
 		-v $(CURDIR)/.nuget-cache:/root/.local/share/NuGet \
 			$(IMAGE_DEVENV) /bin/bash || true
@@ -27,7 +37,17 @@ image: dist
 	docker build -t $(IMAGE_FINAL) .
 
 instance: image
-	docker run -it -p 0.0.0.0:9999:80 $(IMAGE_FINAL)
+	docker run -it --net=host \
+		--env=LISTEN_PORT=9080 \
+		--env=REDIS_HOST=127.0.0.1 \
+		--env=REDIS_PORT=6379 \
+		--env=REDIS_PASSWORD=redis \
+		--env=POSTGRES_HOST=127.0.0.1 \
+		--env=POSTGRES_PORT=5432 \
+		--env=POSTGRES_DATABASE_NAME=polykubedb \
+		--env=POSTGRES_USERNAME=postgres \
+		--env=POSTGRES_PASSWORD=postgres \
+			$(IMAGE_FINAL)
 
 push: image
 	docker push $(IMAGE_FINAL)

@@ -1,6 +1,10 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Core;
@@ -19,8 +23,6 @@ using StackExchange.Redis;
 
 using Api.Controllers;
 using Api.DataAccess;
-using Api.Services.Color;
-using Api.Services.Counter;
 
 namespace Api
 {
@@ -28,32 +30,28 @@ namespace Api
     {
         private IConfiguration Configuration;
 
-        public void ConfigureServices(IServiceCollection services)
+        public async void ConfigureServices(IServiceCollection services)
         {
             var configBuilder = new ConfigurationBuilder();
-            configBuilder.AddEnvironmentVariables("polykube_");
+            configBuilder.AddEnvironmentVariables();
             this.Configuration = configBuilder.Build();
 
             services.AddOptions();
 
-            services.AddSingleton<IDatabase>((IServiceCollection) => configureRedis());
-            services.AddSingleton<ICounterService>((IServiceCollection) => new CounterService());
-            services.AddSingleton<IColorService>((IServiceCollection) => new ColorService());
+            var redis = await configureRedis();
+            services.AddSingleton<IDatabase>((IServiceCollection) => redis);
             services.AddDbContext<DataContext>(options => configureDatabase(options));
-
-            services.AddMvcCore().AddJsonFormatters(json =>
-            {
-                json.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
+            //services.AddMvcCore().AddJsonFormatters();
+            services.AddMvc();
+            services.AddApiVersioning(o => o.AssumeDefaultVersionWhenUnspecified = false);
             services.AddCors();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, DataContext dataContext, IDatabase redisDb)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, DataContext dataContext/*, IDatabase redisDb*/)
         {
-            ensureDatabase(dataContext);
+            dataContext.Database.EnsureCreatedAsync().Wait();
 
             if (env.IsDevelopment()) {
-                Console.WriteLine("starting in development mode");
                 loggerFactory.AddDebug(LogLevel.Information);
                 app.UseDeveloperExceptionPage();
                 app.UseStatusCodePages();
@@ -68,72 +66,60 @@ namespace Api
 
         private DbContextOptionsBuilder configureDatabase(DbContextOptionsBuilder options)
         {
-            // can I get a logger here?
-            // I'm probably wrong for asking, just like I'm wrong to want
-            // to use a strongly typed config object
-            // while setting up other things that will be injected
-
-            // TODO: remove this when exceptions aren't swallowed here
             try {
-            var driver = this.Configuration["database_driver"];
-            Console.WriteLine($"db driver: {driver}");
+                var host = this.Configuration["postgres_host"];
+                var port = this.Configuration["postgres_port"];
+                var database = this.Configuration["postgres_database_name"];
+                var username = this.Configuration["postgres_username"];
+                var password = this.Configuration["postgres_password"];
 
-            switch(driver)
-            {
-                case "postgres":
-                {
-                    var server = this.Configuration["postgres_address"];
-                    var port = this.Configuration["postgres_port"];
-                    var database = this.Configuration["database_name"];
-                    var username = this.Configuration["postgres_username"];
-                    var passwordLocation = this.Configuration["postgres_password_location"];
-                    var password = File.ReadAllLines(passwordLocation)[0];
+                var connectionString = $"server={host};port={port};user id={username};password={password};database={database}";
 
-                    var connectionString = $"server={server};user id={username};password={password};database={database}";
+                var npgsql = options.UseNpgsql(connectionString);
 
-                    var npgsql = options.UseNpgsql(connectionString);
-                    return npgsql;
-                }
-                case "memory":
-                default:
-                {
-                    return options.UseInMemoryDatabase();
-                }
-            }
+                Console.WriteLine("POSTGRES: Connected!");
+                return npgsql;
             } catch(Exception e) {
-                Console.Error.WriteLine("Failed to connect to Postgres.");
-                Console.Error.WriteLine("Exception:  {0}", e);
+                Console.Error.WriteLine("POSTGRES: Failed to connect.");
+                Console.Error.WriteLine("POSTGRES: Exception: {0}", e);
                 return null;
             }
         }
 
-        private void ensureDatabase(DataContext dataContext)
-        {
-            dataContext.Database.EnsureCreatedAsync().Wait();
-        }
-
-        private IDatabase configureRedis()
+        private async Task<IDatabase> configureRedis()
         {
             var connectionOutput = new StringWriter();
             try {
-                var server = this.Configuration["redis_address"];
-                var port = this.Configuration["redis_port"];
-                var passwordLocation = this.Configuration["redis_password_location"];
-                var password = File.ReadAllLines(passwordLocation)[0];
+                string host = this.Configuration["redis_host"];
+                string port = this.Configuration["redis_port"];
+                string password = this.Configuration["redis_password"];
 
-                var connectionString = $"{server}:{port},password={password}";
+                // start workaround: BUG_LINK
+                // manually resolve dns
+                if (IPAddress.TryParse(host, out var _)) {
+                    Console.WriteLine("REDIS: parsed as ip, using as-is");
+                } else {
+                    Console.WriteLine($"REDIS: resolving '{host}'");
+                    var possibleHosts = await Dns.GetHostAddressesAsync(host);
+                    host = possibleHosts.First(h => h.AddressFamily == AddressFamily.InterNetwork).ToString();
+                }
+                // end workaround
 
-                Console.WriteLine($"REDIS CONNECTION STRING = {connectionString}");
+                var connectionString = $"{host}:{port},password={password}";
 
                 var redis = ConnectionMultiplexer.Connect(connectionString, connectionOutput);
+                Console.Error.WriteLine(connectionOutput.ToString());
                 var db = redis.GetDatabase();
+
+
+                Console.WriteLine("REDIS: Connected!");
+
                 return db;
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine("Failed to connect to Redis.");
-                Console.Error.WriteLine("Connection: {0}", connectionOutput.ToString());
-                Console.Error.WriteLine("Exception:  {0}", e);
+                Console.Error.WriteLine("REDIS: Connection Failed!");
+                Console.Error.WriteLine(e);
                 throw;
             }
         }

@@ -1,4 +1,5 @@
 .NOTPARALLEL:
+.PHONY: devenv dist image instance push
 
 CURDIR = $(shell pwd)
 REGISTRY ?= localhost:5000
@@ -10,7 +11,7 @@ IMAGE_FINAL = $(REGISTRY)/$(PROJECT):$(VERSION)
 
 devenv:
 	docker build --pull -t $(IMAGE_DEVENV) ./source
-	docker run -it -p 0.0.0.0:9999:9999 -p 0.0.0.0:9998:9998 \
+	docker run -it --net=host \
 		-v $(CURDIR)/source:/$(PROJECT)/source \
 		-v $(CURDIR)/.node_modules-cache:/$(PROJECT)/source/node_modules \
 			$(IMAGE_DEVENV) /bin/bash || true
@@ -27,7 +28,7 @@ image: dist
 	docker build -t $(IMAGE_FINAL) .
 
 instance: image
-	docker run -it -p 0.0.0.0:9999:80 $(IMAGE_FINAL)
+	docker run -it --net=host $(IMAGE_FINAL)
 
 push: image
 	docker push $(IMAGE_FINAL)

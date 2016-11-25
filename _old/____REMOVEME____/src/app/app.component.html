@@ -1,0 +1,19 @@
+<md-sidenav-layout fullscreen>
+  <md-sidenav #sidenav mode="push">
+    <md-nav-list>
+      <a *ngFor="let navitem of navitems" [routerLink]="[navitem.path]" md-list-item>
+        <md-icon md-list-icon>{{navitem.icon}}</md-icon>
+        <span md-line>{{navitem.name}}</span>
+        <span md-line class="secondary">{{navitem.description}}</span>
+      </a>
+    </md-nav-list>
+  </md-sidenav>
+  <md-toolbar color="primary">
+  <button md-icon-button (click)="sidenav.toggle()">
+    <md-icon>menu</md-icon>
+  </button>
+  {{title}}
+  </md-toolbar>
+  <router-outlet></router-outlet>
+</md-sidenav-layout>
+
