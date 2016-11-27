@@ -1,13 +1,12 @@
 ﻿<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
-  
   <PropertyGroup>
     <VersionPrefix>0.0.1</VersionPrefix>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <WarningsAsErrors>true</WarningsAsErrors>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>aspnet-api</AssemblyName>
-    <!--<OutputType>Exe</OutputType>-->
+	<OutputType>Exe</OutputType>
     <RuntimeIdentifiers>debian.8-x64</RuntimeIdentifiers>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);portable-net45+wp80+win8+wpa81+dnxcore50;portable-net451+win8</PackageTargetFallback>
   </PropertyGroup>

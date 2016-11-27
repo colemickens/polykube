@@ -43,7 +43,8 @@ namespace Api
             services.AddDbContext<DataContext>(options => configureDatabase(options));
             //services.AddMvcCore().AddJsonFormatters();
             services.AddMvc();
-            services.AddApiVersioning(o => o.AssumeDefaultVersionWhenUnspecified = false);
+            //services.AddApiVersioning(o => o.AssumeDefaultVersionWhenUnspecified = false);
+            services.AddApiVersioning();
             services.AddCors();
         }
 
