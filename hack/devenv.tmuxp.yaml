@@ -1,0 +1,38 @@
+session_name: polykube
+windows:
+- focus: 'true'
+  layout: 44ae,182x56,0,0{91x56,0,0[91x28,0,0,1,91x27,0,29,3],90x56,92,0[90x13,92,0,2,90x21,92,14,4,90x20,92,36,5]}
+  options: {}
+  panes:
+  - shell_command:
+    - cd /home/cole/code/colemickens/polykube/polykube-aspnet-api
+    - nvim
+  - shell_command:
+    - cd /home/cole/code/colemickens/polykube/polykube-aspnet-api
+    - make devenv
+  window_name: nvim-api
+- focus: 'false'
+  layout: 44ae,182x56,0,0{91x56,0,0[91x28,0,0,1,91x27,0,29,3],90x56,92,0[90x13,92,0,2,90x21,92,14,4,90x20,92,36,5]}
+  options: {}
+  panes:
+  - shell_command:
+    - cd /home/cole/code/colemickens/polykube/polykube-frontend
+    - nvim
+  - shell_command:
+    - cd /home/cole/code/colemickens/polykube/polykube-frontend
+    - make devenv
+  window_name: nvim-fe
+- focus: 'false'
+  layout: 44ae,182x56,0,0{91x56,0,0[91x28,0,0,1,91x27,0,29,3],90x56,92,0[90x13,92,0,2,90x21,92,14,4,90x20,92,36,5]}
+  options: {}
+  panes:
+  - shell_command:
+    - cd /home/cole/code/colemickens/polykube/polykube-redis
+    - make instance
+  - shell_command:
+    - cd /home/cole/code/colemickens/polykube/polykube-aspnet-api-nginx
+    - make instance
+  - shell_command:
+    - cd /home/cole/code/colemickens/polykube/polykube-postgres
+    - make instance
+  window_name: instance
