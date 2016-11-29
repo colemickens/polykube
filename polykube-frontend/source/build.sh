@@ -2,6 +2,7 @@
 
 set -eux
 
+cd polykube-frontend
 npm install
 ng build -prod
 rm -rf ../dist

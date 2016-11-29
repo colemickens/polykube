@@ -10,14 +10,14 @@ IMAGE_DEVENV = $(PROJECT)-devenv
 IMAGE_FINAL = $(REGISTRY)/$(PROJECT):$(VERSION)
 
 devenv:
-	docker build --pull -t $(IMAGE_DEVENV) ./source
+	docker build -t $(IMAGE_DEVENV) ./source
 	docker run -it --net=host \
 		-v $(CURDIR)/source:/$(PROJECT)/source \
-		-v $(CURDIR)/.node_modules-cache:/$(PROJECT)/source/node_modules \
+		-v $(CURDIR)/.node_modules-cache:/$(PROJECT)/source/polykube-frontend/node_modules \
 			$(IMAGE_DEVENV) /bin/bash || true
 
 dist:
-	docker build --pull -t $(IMAGE_DEVENV) ./source
+	docker build -t $(IMAGE_DEVENV) ./source
 	docker rm -f $(PROJECT) || true
 	docker run -it --name=$(PROJECT) $(IMAGE_DEVENV) bash ./build.sh
 	rm -rf image/dist

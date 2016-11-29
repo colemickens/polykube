@@ -10,7 +10,7 @@ IMAGE_DEVENV = $(PROJECT)-devenv
 IMAGE_FINAL = $(REGISTRY)/$(PROJECT):$(VERSION)
 
 devenv:
-	docker build --pull -t $(IMAGE_DEVENV) ./source
+	docker build -t $(IMAGE_DEVENV) ./source
 	docker run -it --net=host \
 		--env=LISTEN_PORT=9080 \
 		--env=REDIS_HOST=127.0.0.1 \
@@ -26,7 +26,7 @@ devenv:
 			$(IMAGE_DEVENV) /bin/bash || true
 
 dist:
-	docker build --pull -t $(IMAGE_DEVENV) ./source
+	docker build -t $(IMAGE_DEVENV) ./source
 	docker rm -f $(PROJECT) || true
 	docker run -it --name=$(PROJECT) $(IMAGE_DEVENV) bash ./build.sh
 	rm -rf image/dist
