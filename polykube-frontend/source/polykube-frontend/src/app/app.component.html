@@ -1,3 +1,27 @@
-<h1>
-  {{title}}
-</h1>
+<md-sidenav-layout>
+  <md-sidenav #sidenav mode="side" class="app-sidenav">
+    Sidenav
+  </md-sidenav>
+
+   <md-toolbar color="primary">
+    <button class="app-icon-button" (click)="sidenav.toggle()">
+      <i class="material-icons app-toolbar-menu">menu</i>
+    </button>
+
+    Polykube Guestbook App
+
+    <span class="app-toolbar-filler"></span>
+    <button md-raised-button color="accent" href="https://github.com/colemickens/polykube">View Source</button>
+  </md-toolbar>
+
+  <div class="app-content">
+
+    <md-card>
+      <button md-button>FLAT</button>
+      <button md-raised-button md-tooltip="This is a tooltip!">RAISED</button>
+      <button md-raised-button color="primary">PRIMARY RAISED</button>
+      <button md-raised-button color="accent">ACCENT RAISED</button>
+    </md-card>
+  </div>
+
+</md-sidenav-layout>
