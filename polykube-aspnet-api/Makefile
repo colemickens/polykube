@@ -28,7 +28,7 @@ devenv:
 dist:
 	docker build -t $(IMAGE_DEVENV) ./source
 	docker rm -f $(PROJECT) || true
-	docker run -it --name=$(PROJECT) $(IMAGE_DEVENV) bash ./build.sh
+	docker run --name=$(PROJECT) $(IMAGE_DEVENV) bash ./build.sh
 	rm -rf image/dist
 	docker cp $(PROJECT):/$(PROJECT)/dist image/
 

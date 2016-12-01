@@ -1,20 +1,36 @@
 <md-sidenav-layout>
-  <md-sidenav #sidenav mode="side" class="app-sidenav">
+  <!--<md-sidenav #sidenav mode="side" class="app-sidenav">
     Sidenav
-  </md-sidenav>
+  </md-sidenav>-->
 
    <md-toolbar color="primary">
-    <button class="app-icon-button" (click)="sidenav.toggle()">
+    <!--<button class="app-icon-button" (click)="sidenav.toggle()">
       <i class="material-icons app-toolbar-menu">menu</i>
-    </button>
+    </button>-->
 
     Polykube Guestbook App
 
     <span class="app-toolbar-filler"></span>
-    <button md-raised-button color="accent" href="https://github.com/colemickens/polykube">View Source</button>
+    <a md-raised-button md-tooltip="Check out polykube on GitHub!" href="https://github.com/colemickens/polykube">View Source</a>
   </md-toolbar>
 
+  <!--
+      list of guest book entries
+      action button is a + for new guestbook entry
+      pops up a md-dialog with the input form and submit button
+    -->
+
+
   <div class="app-content">
+    <md-card>
+      <md-list class="app-list">
+        <md-list-item *ngFor="let guestbookentry of guestbookentries">
+          <h3 md-line>{{entry.author}}</h3>
+          <p md-line class="demo-secondary-text">{{entry.timestamp}}</p>
+          <p>{{entry.message}}</p>
+        </md-list-item>
+      </md-list>
+    </md-card>
 
     <md-card>
       <button md-button>FLAT</button>
@@ -22,6 +38,10 @@
       <button md-raised-button color="primary">PRIMARY RAISED</button>
       <button md-raised-button color="accent">ACCENT RAISED</button>
     </md-card>
+
+    <span class="app-action" [class.m2app-dark]="isDarkTheme">
+        <button md-fab><md-icon>add</md-icon></button>
+    </span>
   </div>
 
 </md-sidenav-layout>

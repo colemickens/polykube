@@ -6,4 +6,4 @@ cd polykube-frontend
 npm install
 ng build -prod
 rm -rf ../dist
-cp -a dist ../dist
+cp -a dist ../../dist
