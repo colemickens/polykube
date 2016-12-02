@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+set -e
+set -u
+set -x
+
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
@@ -10,6 +14,11 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 ROOT="${DIR}/.."
 LOGDIR="$(mktemp -d)"
+
+if [[ "${REGISTRY:-}" == "" ]]; then
+  echo "REGISTRY must be set"
+  exit -1
+fi
 
 echo "Build logs are in ${LOGDIR}"
 

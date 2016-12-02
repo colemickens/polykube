@@ -14,7 +14,8 @@ devenv:
 	docker run -it --net=host \
 		-v $(CURDIR)/source:/$(PROJECT)/source \
 		-v $(CURDIR)/.node_modules-cache:/$(PROJECT)/source/polykube-frontend/node_modules \
-			$(IMAGE_DEVENV) /bin/bash || true
+			$(IMAGE_DEVENV) bash -c "./build.sh && ./run.sh; bash" \
+	|| true
 
 dist:
 	docker build -t $(IMAGE_DEVENV) ./source

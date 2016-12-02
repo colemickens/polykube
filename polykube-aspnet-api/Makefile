@@ -22,8 +22,9 @@ devenv:
 		--env=POSTGRES_USERNAME=postgres \
 		--env=POSTGRES_PASSWORD=postgres \
 		-v $(CURDIR)/source:/$(PROJECT)/source \
-		-v $(CURDIR)/.nuget-cache:/root/.local/share/NuGet \
-			$(IMAGE_DEVENV) /bin/bash || true
+		-v $(CURDIR)/.nuget:/root/.nuget \
+			$(IMAGE_DEVENV) bash -c "./build.sh && ./run.sh; bash" \
+	|| true
 
 dist:
 	docker build -t $(IMAGE_DEVENV) ./source
