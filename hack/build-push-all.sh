@@ -2,7 +2,6 @@
 
 set -e
 set -u
-set -x
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -27,7 +26,6 @@ echo "Build logs are in ${LOGDIR}"
 for dir in "${ROOT}/polykube-"*/; do
   cd "${dir}";
   logname="$(basename "${dir}").log"
-  make push &> "${LOGDIR}/${logname}" &
+  make push
   cd ..
 done
-wait

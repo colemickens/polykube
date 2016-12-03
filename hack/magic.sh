@@ -12,6 +12,8 @@ set -e
 set -u
 set -x
 
+###############################################################################
+
 [[ -f "${DIR}/user.env" ]] && source "${DIR}/user.env"
 
 # User needs to specify these
@@ -27,105 +29,96 @@ export CLIENT_SECRET="${CLIENT_SECRET}"
 # Optional (blank = skip auto DNS)
 export DOMAIN="${DOMAIN:-}"
 
-# Constants
-export AZURE_CLI_IMAGE="azuresdk/azure-cli-python:0.1.0b10"
-export AZ_CONTAINER="polykube-az"
-export KUBECTL_IMAGE="gcr.io/google_containers/kubectl-amd64:v1.5.0-beta.1"
-export KUBECTL_CONTAINER="polykube-kubectl"
-
-# TODO: check if already exists and skip this step if so
-
-cleanup() {
-	docker stop "${AZ_CONTAINER}" || true
-	docker rm "${AZ_CONTAINER}" || true
-	docker stop "${KUBECTL_CONTAINER}" || true
-	docker rm "${KUBECTL_CONTAINER}" || true
-}
+###############################################################################
 
 startup() {
-	docker run -dt --name="${AZ_CONTAINER}" "${AZURE_CLI_IMAGE}"
-	docker run -dt --name="${KUBECTL_CONTAINER}" "${KUBECTL_IMAGE}"
+	export WORKDIR="$(mktemp -d /tmp/tmp.polykube.XXXXXXXX)"
 }
 
-# Cleanup Now and Later
-cleanup
-trap cleanup EXIT
+cleanup() {
+	set +x
+	echo
+	echo "******** WARNING ********"
+	echo "** ${WORKDIR} contains sensitive assets. Delete or backup as needed."
+	echo "******** WARNING ********"
+}
 
 startup
+trap cleanup EXIT
 
-docker exec "${AZ_CONTAINER}" \
-	az login --service-principal \
-		--username="${CLIENT_ID}" \
-		--password="${CLIENT_SECRET}" \
-		--tenant="${TENANT_ID}"
+echo "******** WORKDIR: ${WORKDIR} ********"
 
-docker exec "${AZ_CONTAINER}" \
-	az account set --subscription="${SUBSCRIPTION_ID}"
+# Isolate our changes
+export AZURE_CONFIG_DIR="${WORKDIR}/az-cli-config"
 
-docker exec "${AZ_CONTAINER}" \
-	az account show
+# Login
+az login --service-principal \
+	--username="${CLIENT_ID}" \
+	--password="${CLIENT_SECRET}" \
+	--tenant="${TENANT_ID}"
 
-docker exec "${AZ_CONTAINER}" \
-	az resource group show --name="${RESOURCE_GROUP}" \
-	|| az resource group create \
-		--name="${RESOURCE_GROUP}" \
-		--location="${LOCATION}"
+# Set subscription
+az account set --subscription="${SUBSCRIPTION_ID}"
 
-export ACR_NAME="${NAME}registry"
-export ACR_NAME="${ACR_NAME//-/}"
-docker exec "${AZ_CONTAINER}" \
-	az acr show --name="${ACR_NAME}" --resource-group="${RESOURCE_GROUP}" \
-	|| az acr create \
-		--name="${ACR_NAME}" \
-		--resource-group="${RESOURCE_GROUP}" \
-		--location="${LOCATION}"
+# Create resource group, if it doesn't exist
+az resource group show --name="${RESOURCE_GROUP}" \
+|| az resource group create \
+	--name="${RESOURCE_GROUP}" \
+	--location="${LOCATION}"
 
+# Create Kubernetes cluster on Azure Container Service, if it doesn't exist
 export ACS_NAME="${NAME}"
 export ACS_DNS_PREFIX="${NAME}${RANDOM}"
-export KUBECONFIG="$(mktemp -d)/kubeconfig.json"
-docker exec "${AZ_CONTAINER}" \
-	az acs show --name "${ACS_NAME}" --resource-group="${RESOURCE_GROUP}" \
-	|| az acs create \
-		--name="${ACS_NAME}" \
-		--resource-group="${RESOURCE_GROUP}" \
-		--orchestrator="kubernetes" \
-		--dns-prefix="${ACS_DNS_PREFIX}" \
-		--agent-vm-size="Standard_D4_v2" \
-		--agent-count=5 \
-		--service-principal="${CLIENT_ID}" \
-		--client-secret="${CLIENT_SECRET}" \
+az acs show --name "${ACS_NAME}" --resource-group="${RESOURCE_GROUP}" \
+|| az acs create \
+	--name="${ACS_NAME}" \
+	--resource-group="${RESOURCE_GROUP}" \
+	--orchestrator="kubernetes" \
+	--dns-prefix="${ACS_DNS_PREFIX}" \
+	--agent-vm-size="Standard_D4_v2" \
+	--agent-count=5 \
+	--service-principal="${CLIENT_ID}" \
+	--client-secret="${CLIENT_SECRET}" \
 
-# copy KUBECONFIG out of the az container
-docker exec "${AZ_CONTAINER}" \
-	mkdir -p '/root/.kube' \
-	&& az acs kubernetes get-credentials \
-		--dns-prefix="${ACS_DNS_PREFIX}" \
-docker cp "${AZ_CONTAINER}:/root/.kube/config" "${KUBECONFIG}"
+# Create Azure Container Registry, if it doesn't exist
+export ACR_NAME="${NAME}registry"
+export ACR_NAME="${ACR_NAME//-/}"
+export REGISTRY="${ACR_NAME}-microsoft.azurecr.io"
+az acr show --name="${ACR_NAME}" --resource-group="${RESOURCE_GROUP}" \
+|| az acr create \
+	--name="${ACR_NAME}" \
+	--resource-group="${RESOURCE_GROUP}" \
+	--location="${LOCATION}"
 
-# copy KUBECONFIG into the kubectl container
-docker exec "${KUBECTL_CONTAINER}" mkdir -p '/root/.kube'
-docker cp "${KUBECONFIG}" "${KUBECTL_CONTAINER}:/root/.kube/config"
+# Download KUBECONFIG for the cluster
+export KUBECONFIG="${WORKDIR}/kubeconfig"
+az acs kubernetes get-credentials \
+	--name "${ACS_NAME}" \
+	--resource-group "${RESOURCE_GROUP}" \
+	--file="${KUBECONFIG}"
+	#--dns-prefix="${ACS_DNS_PREFIX}" \
+	#--location="${LOCATION}" \
+	#--file="${KUBECONFIG}"
 
 # create imagePullSecret for ACR
-docker exec "${KUBECTL_CONTAINER}" \
-	kubectl create secret docker-registry \
-		acr-registry-secret \
-		--docker-server="${ACR_NAME}.azure-containers.io" \
-		--docker-username="${CLIENT_ID}" \
-		--docker-password="${CLIENT_SECRET}" \
-		--docker-email="notapplicable@example.com"
+kubectl get secret acr-registry-secret \
+|| kubectl create secret docker-registry \
+	acr-registry-secret \
+	--docker-server="${ACR_NAME}.azure-containers.io" \
+	--docker-username="${CLIENT_ID}" \
+	--docker-password="${CLIENT_SECRET}" \
+	--docker-email="notapplicable@example.com"
 
-# push some shit to the remote registry
-# deploy some shit to the ACS kube cluster
+# Docker login to ACR registry so we can push
+# TODO: this modifies global state (~/.docker/config.json)
+# TODO: see if there is something similar to what 'az' offers for isolation
+docker login \
+	--username "${CLIENT_ID}" \
+	--password "${CLIENT_SECRET}" \
+	"${REGISTRY}"
 
-# deploy ACR registry
-# grab credentials
+# Push polykube images to remote registry
+# NOTE: This implicitly builds the production-ready containers before pushing
+"${DIR}/build-push-all.sh"
 
-# deploy ACS cluster
-# grab credentials
-
-# inject imagePullSecret into cluster
-
-# hack/build-push-all.sh
-
-# deploy local helm chart
+"${DIR}/deploy-all.sh"
