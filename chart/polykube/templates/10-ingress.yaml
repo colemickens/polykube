@@ -1,0 +1,53 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "name" }}
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    stable.k8s.psg.io/kcm.enabled: "true"
+    stable.k8s.psg.io/kcm.enabled: "http"
+    stable.k8s.psg.io/kcm.enabled: "admin@polykube.io"
+spec:
+  tls:
+  - hosts:
+    - api.{{ .Values.domain }}
+    - {{ .Values.domain }}
+    secretName: {{ template "name" }}-tls
+  rules:
+  - host: {{ .Values.domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: frontend
+          servicePort: 80
+  - host: api.{{ .Values.domain }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: aspnet-api
+          servicePort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: aspnet-api
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  selector:
+    name: aspnet-api
+    labels:
+      chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  ports:
+  - port: 80
+    targetPort: 80
+    port: 443
+    targetPort: 443
+  type: LoadBalancer

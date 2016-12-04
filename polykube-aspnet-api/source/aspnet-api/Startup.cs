@@ -70,7 +70,7 @@ namespace Api
             try {
                 var host = this.Configuration["postgres_host"];
                 var port = this.Configuration["postgres_port"];
-                var database = this.Configuration["postgres_database_name"];
+                var database = this.Configuration["postgres_database"];
                 var username = this.Configuration["postgres_username"];
                 var password = this.Configuration["postgres_password"];
 

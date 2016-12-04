@@ -1,0 +1,90 @@
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: aspnet-api
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  replicas: 3
+  template:
+    metadata:
+      namespace: {{ template "name" }}
+      labels:
+        name: aspnet-api
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      containers:
+      - name: aspnet-api
+        image: {{ .Values.image.registry }}/{{ template "name" }}-aspnet-api:{{ .Values.image.tag }}
+        imagePullPolicy: Always
+        env:
+        - name: LISTEN_HOST
+          value: '0.0.0.0'
+        - name: LISTEN_PORT
+          value: '8000'
+        - name: REDIS_ADDRESS
+          value: 'redis'
+        - name: REDIS_PORT
+          value: '6379'
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: password
+        - name: DATABASE_DRIVER
+          value: 'postgres'
+        - name: DATABASE_NAME
+          value: 'polykubedb'
+        - name: POSTGRES_ADDRESS
+          value: 'postgres'
+        - name: POSTGRES_PORT
+          value: '5432'
+        - name: POSTGRES_USERNAME
+          value: 'postgres'
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres
+              key: password
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /info
+            port: 8000
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        livenessProbe:
+          httpGet:
+            path: /info
+            port: 8000
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+      - name: aspnet-nginx
+        image: {{ .Values.image.registry}}/{{ template "name" }}-aspnet-api-nginx:{{ .Values.image.tag }}
+        imagePullPolicy: Always
+        env:
+        - name: LISTEN_PORT
+          value: '80'
+        - name: BACKEND_LOCATION
+          value: 'http://0.0.0.0:8000'
+        ports:
+        - containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: aspnet-api
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  selector:
+    name: aspnet-api
+    labels:
+      chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  ports:
+  - port: 80
+    targetPort: 80

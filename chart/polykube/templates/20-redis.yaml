@@ -1,0 +1,58 @@
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+type: Opaque
+data:
+  {{ if .Values.RedisPassword }}
+  password: {{ .Values.RedisPassword | b64enc | quote }}
+  {{ else }}
+  password: {{ randAlphaNum 15 | b64enc | quote }}
+  {{ end }}
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: redis
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      namespace: {{ template "name" }}
+      labels:
+        name: redis
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      containers:
+      - name: redis
+        image: {{ .Values.image.registry }}/{{ template "name" }}-redis:{{ .Values.image.tag }}
+        imagePullPolicy: Always
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis
+              key: password
+        ports:
+        - containerPort: 6379
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  selector:
+    name: redis
+  ports:
+  - port: 6379
+    targetPort: 6379

@@ -119,6 +119,11 @@ docker login \
 
 # Push polykube images to remote registry
 # NOTE: This implicitly builds the production-ready containers before pushing
+export VERSION=stable
 "${DIR}/build-push-all.sh"
 
-"${DIR}/deploy-all.sh"
+(
+	cd ${DIR}/../chart/
+	helm package polykube
+	helm deploy ./polykube.tar.gz
+)

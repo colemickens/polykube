@@ -1,0 +1,39 @@
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: frontend
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  replicas: 3
+  template:
+    metadata:
+      namespace: {{ template "name" }}
+      labels:
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        name: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: {{ .Values.image.registry }}/{{ template "name" }}-frontend:{{ .Values.image.tag }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: frontend
+  namespace: {{ template "name" }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  selector:
+    name: frontend
+    labels:
+      chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  ports:
+  - port: 80
+    targetPort: 80
