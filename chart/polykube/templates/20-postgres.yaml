@@ -40,16 +40,6 @@ spec:
             secretKeyRef:
               name: postgres
               key: password
-        volumeMounts:
-        - name: postgres-auth-secret
-          mountPath: /etc/{{ template "name" }}/postgres-auth
-          readOnly: true
-        ports:
-        - containerPort: 80
-      volumes:
-      - name: postgres-auth-secret
-        secret:
-          secretName: postgres-auth
 ---
 kind: Service
 apiVersion: v1
