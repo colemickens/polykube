@@ -19,4 +19,8 @@ RUN npm install -g angular-cli
 
 ADD . /polykube-frontend/source
 WORKDIR /polykube-frontend/source
+
+ARG BUILD=n
+RUN bash -c "if [[ \"${BUILD}\" == \"y\" ]]; then ./build.sh; fi"
+
 CMD /usr/bin/env bash

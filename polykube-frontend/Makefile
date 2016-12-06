@@ -7,6 +7,7 @@ VERSION ?= $(shell git describe --always --dirty)
 
 PROJECT = polykube-frontend
 IMAGE_DEVENV = $(PROJECT)-devenv
+IMAGE_DIST = $(PROJECT)-dist
 IMAGE_FINAL = $(REGISTRY)/$(PROJECT):$(VERSION)
 
 devenv:
@@ -18,10 +19,10 @@ devenv:
 	|| true
 
 dist:
-	docker build -t $(IMAGE_DEVENV) ./source
-	docker rm -f $(PROJECT) || true
-	docker run --name=$(PROJECT) $(IMAGE_DEVENV) bash ./build.sh
 	rm -rf image/dist
+	docker rm -f $(PROJECT) || true
+	docker build --build-arg=BUILD=y -t $(IMAGE_DIST) ./source
+	docker run --name $(PROJECT) $(IMAGE_DEVENV)
 	docker cp $(PROJECT):/$(PROJECT)/dist image/
 
 image: dist
