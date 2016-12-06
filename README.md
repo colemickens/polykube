@@ -1,3 +1,12 @@
+# WARNING
+
+Some of the following has not yet been implemented!
+When the simple Angular2 app is finished with the rewrite,
+and I actually use Redis for something... I'll likely squash
+this history!
+
+---
+
 # polykube
 
 ## Overview
