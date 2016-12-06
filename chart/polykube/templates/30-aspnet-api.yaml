@@ -70,8 +70,10 @@ spec:
         env:
         - name: LISTEN_PORT
           value: '80'
-        - name: BACKEND_LOCATION
-          value: 'http://0.0.0.0:8000'
+        - name: BACKEND_HOST
+          value: '0.0.0.0'
+        - name: BACKEND_PORT
+          value: '8000'
         ports:
         - containerPort: 80
 ---

@@ -8,11 +8,7 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
 type: Opaque
 data:
-  {{ if .Values.RedisPassword }}
-  password: {{ .Values.RedisPassword | b64enc | quote }}
-  {{ else }}
-  password: {{ randAlphaNum 15 | b64enc | quote }}
-  {{ end }}
+  password: {{ print .Values.RedisPassword | b64enc | quote }}
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1

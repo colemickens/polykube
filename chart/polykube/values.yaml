@@ -10,5 +10,5 @@ image:
 domain: polykube.io
 #todo fix need for this
 nameOverride: polykube
-#redisPassword:
-#postgresPassword:
+redisPassword: abc123
+postgresPassword: abc123
