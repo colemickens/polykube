@@ -70,19 +70,20 @@ namespace Api
             try {
                 var host = this.Configuration["postgres_host"];
                 var port = this.Configuration["postgres_port"];
-                var database = this.Configuration["postgres_database"];
+                var dbname = this.Configuration["database_name"];
                 var username = this.Configuration["postgres_username"];
                 var password = this.Configuration["postgres_password"];
 
-                var connectionString = $"server={host};port={port};user id={username};password={password};database={database}";
+                var connectionString = $"server={host};port={port};user id={username};password={password};database={dbname}";
+                Console.WriteLine($"postgres connstring: {connectionString}");
 
                 var npgsql = options.UseNpgsql(connectionString);
 
                 Console.WriteLine("POSTGRES: Connected!");
                 return npgsql;
             } catch(Exception e) {
-                Console.Error.WriteLine("POSTGRES: Failed to connect.");
-                Console.Error.WriteLine("POSTGRES: Exception: {0}", e);
+                Console.WriteLine("POSTGRES: Failed to connect.");
+                Console.WriteLine("POSTGRES: Exception: {0}", e);
                 return null;
             }
         }
@@ -107,11 +108,16 @@ namespace Api
                 // end workaround
 
                 var connectionString = $"{host}:{port},password={password}";
+                Console.WriteLine($"REDIS: connstring={connectionString}");
 
+				var stamp = "Abc123";
+
+                Console.WriteLine($"REDIS: Connecting... {stamp}");
                 var redis = ConnectionMultiplexer.Connect(connectionString, connectionOutput);
-                Console.Error.WriteLine(connectionOutput.ToString());
+                Console.WriteLine($"REDIS: Connecting...");
+                Console.WriteLine($"REDIS: Output:");
+                Console.WriteLine(connectionOutput.ToString());
                 var db = redis.GetDatabase();
-
 
                 Console.WriteLine("REDIS: Connected!");
 
@@ -119,8 +125,11 @@ namespace Api
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine("REDIS: Connection Failed!");
-                Console.Error.WriteLine(e);
+                Console.WriteLine($"REDIS: Exception!");
+                Console.WriteLine($"REDIS: Output:");
+                Console.WriteLine(connectionOutput.ToString());
+                Console.WriteLine($"REDIS: Connection Failed!");
+                Console.WriteLine(e);
                 throw;
             }
         }

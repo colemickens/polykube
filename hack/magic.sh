@@ -29,13 +29,12 @@ export CLIENT_SECRET="${CLIENT_SECRET}"
 # Optional (blank = skip auto DNS)
 export DOMAIN="${DOMAIN:-}"
 export NAMEOVERRIDE="${NAMEOVERRIDE:-polykube}"
-export VERSION="${VERSION:-$(git describe --dirty --abbrev=10 --always)}"
+export VERSION="${VERSION:-$(git describe --dirty --always)}"
 
 ###############################################################################
 
 startup() {
-	#export WORKDIR="$(mktemp -d /tmp/tmp.polykube.XXXXXXXX)"
-	export WORKDIR="${DIR}/_deployments/polykube.${VERSION}"
+	export WORKDIR="${DIR}/_deployments/${NAME}"
 	mkdir -p "${WORKDIR}"
 }
 
@@ -93,6 +92,8 @@ az acr show --name="${ACR_NAME}" --resource-group="${RESOURCE_GROUP}" \
 	--location="${LOCATION}"
 
 # Download KUBECONFIG for the cluster
+# (note this intentionally comes after ACR so the
+#  nodes can finish provisioning...)
 export KUBECONFIG="${WORKDIR}/kubeconfig"
 az acs kubernetes get-credentials \
 	--name "${ACS_NAME}" \

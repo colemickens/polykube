@@ -31,7 +31,7 @@ spec:
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     spec:
       imagePullSecrets:
-      - name: acr
+      - name: acr-image-pull-secret
       containers:
       - name: postgres
         image: {{ .Values.image.registry}}/{{ template "name" }}-postgres:{{ .Values.image.tag }}
