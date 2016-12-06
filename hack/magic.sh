@@ -29,7 +29,7 @@ export CLIENT_SECRET="${CLIENT_SECRET}"
 # Optional (blank = skip auto DNS)
 export DOMAIN="${DOMAIN:-}"
 export NAMEOVERRIDE="${NAMEOVERRIDE:-polykube}"
-export VERSION="${VERSION:-$(git describe --dirty --always)}"
+export VERSION="${VERSION:-git$(git describe --dirty --always)}"
 
 ###############################################################################
 
