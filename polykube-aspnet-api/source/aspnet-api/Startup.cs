@@ -30,7 +30,7 @@ namespace Api
     {
         private IConfiguration Configuration;
 
-        public async void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             var configBuilder = new ConfigurationBuilder();
             configBuilder.AddEnvironmentVariables();
@@ -38,8 +38,7 @@ namespace Api
 
             services.AddOptions();
 
-            var redis = await configureRedis();
-            services.AddSingleton<IDatabase>((IServiceCollection) => redis);
+            services.AddSingleton<IDatabase>((IServiceCollection) => configureRedis());
             services.AddDbContext<DataContext>(options => configureDatabase(options));
             //services.AddMvcCore().AddJsonFormatters();
             services.AddMvc();
@@ -88,7 +87,7 @@ namespace Api
             }
         }
 
-        private async Task<IDatabase> configureRedis()
+        private IDatabase configureRedis()
         {
             var connectionOutput = new StringWriter();
             try {
@@ -102,15 +101,15 @@ namespace Api
                     Console.WriteLine("REDIS: parsed as ip, using as-is");
                 } else {
                     Console.WriteLine($"REDIS: resolving '{host}'");
-                    var possibleHosts = await Dns.GetHostAddressesAsync(host);
-                    host = possibleHosts.First(h => h.AddressFamily == AddressFamily.InterNetwork).ToString();
+                    var possibleHosts = Dns.GetHostAddressesAsync(host);
+                    host = possibleHosts.Result.First(h => h.AddressFamily == AddressFamily.InterNetwork).ToString();
                 }
                 // end workaround
 
                 var connectionString = $"{host}:{port},password={password}";
                 Console.WriteLine($"REDIS: connstring={connectionString}");
 
-				var stamp = "Abc123";
+				var stamp = "Abc123xyz";
 
                 Console.WriteLine($"REDIS: Connecting... {stamp}");
                 var redis = ConnectionMultiplexer.Connect(connectionString, connectionOutput);
