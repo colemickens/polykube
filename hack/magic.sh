@@ -76,7 +76,7 @@ az acs show --name "${ACS_NAME}" --resource-group="${RESOURCE_GROUP}" \
 	--name="${ACS_NAME}" \
 	--resource-group="${RESOURCE_GROUP}" \
 	--orchestrator="kubernetes" \
-	--dns-prefix="${ACS_NAME}" \
+	--dns-prlefix="${ACS_NAME}" \
 	--agent-vm-size="Standard_D2_v2" \
 	--agent-count=2 \
 	--service-principal="${CLIENT_ID}" \
@@ -95,6 +95,7 @@ az acr show --name="${ACR_NAME}" --resource-group="${RESOURCE_GROUP}" \
 # (note this intentionally comes after ACR so the
 #  nodes can finish provisioning...)
 export KUBECONFIG="${WORKDIR}/kubeconfig"
+rm -f "${KUBECONFIG}" # todo, file a bug on azure-cli for not removing after merge
 az acs kubernetes get-credentials \
 	--name "${ACS_NAME}" \
 	--resource-group "${RESOURCE_GROUP}" \
@@ -116,9 +117,21 @@ docker login \
 kubectl get deployment tiller-deploy --namespace kube-system \
 || (helm init && sleep 20)
 
-(
-	cd ${DIR}/../chart/
-	helm install \
-		./polykube \
-		--set image.registry="${REGISTRY}",image.tag="${VERSION}",nameOverride="${NAMEOVERRIDE}",image.username="${CLIENT_ID}",image.password="${CLIENT_SECRET}"
-)
+# doesmt work, it converts VERSION to exponent-itized int
+#export HELM_VALS="image.registry=${REGISTRY},image.tag=${VERSION},nameOverride=${NAMEOVERRIDE},image.username=${CLIENT_ID},image.password=${CLIENT_SECRET}"
+
+rm -f "${WORKDIR}/helm-install.sh"
+cat <<- EOF > "${WORKDIR}/helm-install.sh"
+	#!/usr/bin/env bash
+	cd "${DIR}"/../chart/
+	helm install ./polykube --set image.registry="${REGISTRY}",image.tag="${VERSION}",nameOverride="${NAMEOVERRIDE}",image.username="${CLIENT_ID}",image.password="${CLIENT_SECRET}"""$
+EOF
+chmod +x "${WORKDIR}/helm-install.sh"
+
+"${WORKDIR}/helm-install.sh"
+
+# TODO:
+# wait on the service ip
+# set it in cloudflare
+#  this is in the oldmaster branch
+
