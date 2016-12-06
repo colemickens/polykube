@@ -21,7 +21,7 @@ devenv:
 dist:
 	rm -rf image/dist
 	docker rm -f $(PROJECT) || true
-	docker build --build-arg=BUILD=y -t $(IMAGE_DIST) ./source
+	docker build --build-arg="BUILD=y" -t $(IMAGE_DEVENV) ./source
 	docker run --name $(PROJECT) $(IMAGE_DEVENV)
 	docker cp $(PROJECT):/$(PROJECT)/dist image/
 

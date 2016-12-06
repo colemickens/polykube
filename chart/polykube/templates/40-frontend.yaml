@@ -15,6 +15,8 @@ spec:
         name: "frontend"
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     spec:
+      imagePullSecrets:
+      - name: acr
       containers:
       - name: frontend
         image: {{ .Values.image.registry }}/{{ template "name" }}-frontend:{{ .Values.image.tag }}

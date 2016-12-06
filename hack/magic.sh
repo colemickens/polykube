@@ -28,11 +28,15 @@ export CLIENT_SECRET="${CLIENT_SECRET}"
 
 # Optional (blank = skip auto DNS)
 export DOMAIN="${DOMAIN:-}"
+export NAMEOVERRIDE="${NAMEOVERRIDE:-polykube}"
+export VERSION="${VERSION:-$(git describe --dirty --abbrev=10 --always)}"
 
 ###############################################################################
 
 startup() {
-	export WORKDIR="$(mktemp -d /tmp/tmp.polykube.XXXXXXXX)"
+	#export WORKDIR="$(mktemp -d /tmp/tmp.polykube.XXXXXXXX)"
+	export WORKDIR="${DIR}/_deployments/polykube.${VERSION}"
+	mkdir -p "${WORKDIR}"
 }
 
 cleanup() {
@@ -67,22 +71,20 @@ az resource group show --name="${RESOURCE_GROUP}" \
 	--location="${LOCATION}"
 
 # Create Kubernetes cluster on Azure Container Service, if it doesn't exist
-export ACS_NAME="${NAME}"
-export ACS_DNS_PREFIX="${NAME}${RANDOM}"
+export ACS_NAME="${NAME//-/}"
 az acs show --name "${ACS_NAME}" --resource-group="${RESOURCE_GROUP}" \
 || az acs create \
 	--name="${ACS_NAME}" \
 	--resource-group="${RESOURCE_GROUP}" \
 	--orchestrator="kubernetes" \
-	--dns-prefix="${ACS_DNS_PREFIX}" \
-	--agent-vm-size="Standard_D4_v2" \
-	--agent-count=5 \
+	--dns-prefix="${ACS_NAME}" \
+	--agent-vm-size="Standard_D2_v2" \
+	--agent-count=2 \
 	--service-principal="${CLIENT_ID}" \
 	--client-secret="${CLIENT_SECRET}" \
 
 # Create Azure Container Registry, if it doesn't exist
-export ACR_NAME="${NAME}registry"
-export ACR_NAME="${ACR_NAME//-/}"
+export ACR_NAME="${NAME//-/}"
 export REGISTRY="${ACR_NAME}-microsoft.azurecr.io"
 az acr show --name="${ACR_NAME}" --resource-group="${RESOURCE_GROUP}" \
 || az acr create \
@@ -96,18 +98,6 @@ az acs kubernetes get-credentials \
 	--name "${ACS_NAME}" \
 	--resource-group "${RESOURCE_GROUP}" \
 	--file="${KUBECONFIG}"
-	#--dns-prefix="${ACS_DNS_PREFIX}" \
-	#--location="${LOCATION}" \
-	#--file="${KUBECONFIG}"
-
-# create imagePullSecret for ACR
-kubectl get secret acr-registry-secret \
-|| kubectl create secret docker-registry \
-	acr-registry-secret \
-	--docker-server="${ACR_NAME}.azure-containers.io" \
-	--docker-username="${CLIENT_ID}" \
-	--docker-password="${CLIENT_SECRET}" \
-	--docker-email="notapplicable@example.com"
 
 # Docker login to ACR registry so we can push
 # TODO: this modifies global state (~/.docker/config.json)
@@ -119,11 +109,15 @@ docker login \
 
 # Push polykube images to remote registry
 # NOTE: This implicitly builds the production-ready containers before pushing
-export VERSION=stable
 "${DIR}/build-push-all.sh"
+
+# Make sure tiller is running
+kubectl get deployment tiller-deploy --namespace kube-system \
+|| (helm init && sleep 20)
 
 (
 	cd ${DIR}/../chart/
-	helm package polykube
-	helm deploy ./polykube.tar.gz
+	helm install \
+		./polykube \
+		--set image.registry="${REGISTRY}",image.tag="${VERSION}",nameOverride="${NAMEOVERRIDE}",image.username="${CLIENT_ID}",image.password="${CLIENT_SECRET}"
 )

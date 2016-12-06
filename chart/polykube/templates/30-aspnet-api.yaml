@@ -15,6 +15,8 @@ spec:
         name: "aspnet-api"
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     spec:
+      imagePullSecrets:
+      - name: acr
       containers:
       - name: aspnet-api
         image: {{ .Values.image.registry }}/{{ template "name" }}-aspnet-api:{{ .Values.image.tag }}

@@ -2,4 +2,16 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ template "name" }}
+  name: "{{ template "name" }}"
+---
+{{ $auth := printf "%s:%s" .Values.image.username .Values.image.password }}
+{{ $authb64 := $auth | b64enc }}
+{{ $fullstr := printf "{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"na@example.com\",\"auth\":\"%s\"}}" .Values.image.registry .Values.image.username .Values.image.password $auth | b64enc }}
+apiVersion: v1
+kind: Secret
+type: "kubernetes.io/dockercfg"
+metadata:
+  name: "acr-image-pull-secret"
+  namespace: "{{ template "name" }}"
+data:
+  .dockercfg: {{ print $fullstr }}

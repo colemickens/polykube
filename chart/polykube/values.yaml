@@ -3,8 +3,10 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 image:
+  username: none
+  password: none
   registry: docker.io/colemickens
-  tag: latest
+  tag: stable
 domain: polykube.io
 #todo fix need for this
 nameOverride: polykube

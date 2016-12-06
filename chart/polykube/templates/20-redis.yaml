@@ -30,6 +30,8 @@ spec:
         name: redis
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     spec:
+      imagePullSecrets:
+      - name: acr
       containers:
       - name: redis
         image: {{ .Values.image.registry }}/{{ template "name" }}-redis:{{ .Values.image.tag }}

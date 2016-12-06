@@ -7,7 +7,7 @@ RUN apt-get update -qq && apt-get install -qqy make \
 ADD . /polykube-aspnet-api/source/
 WORKDIR /polykube-aspnet-api/source
 
-ARG BUILD=n
+ARG BUILD=${BUILD:-n}
 RUN bash -c "if [[ \"${BUILD}\" == \"y\" ]]; then ./build.sh; fi"
 
-CMD ./build.sh
+CMD /usr/bin/env bash
