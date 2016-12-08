@@ -16,6 +16,7 @@ RUN apt-get update -qq \
 #	make install;"
 
 RUN npm install -g angular-cli
+RUN npm install -g npm-check-updates
 
 ADD . /polykube-frontend/source
 WORKDIR /polykube-frontend/source

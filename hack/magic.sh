@@ -29,7 +29,7 @@ export CLIENT_SECRET="${CLIENT_SECRET}"
 # Optional (blank = skip auto DNS)
 export DOMAIN="${DOMAIN:-}"
 export NAMEOVERRIDE="${NAMEOVERRIDE:-polykube}"
-export VERSION="${VERSION:-git$(git describe --dirty --always)}"
+export VERSION="${VERSION:-$(git describe --dirty --always)}"
 
 ###############################################################################
 
@@ -124,7 +124,7 @@ rm -f "${WORKDIR}/helm-install.sh"
 cat <<- EOF > "${WORKDIR}/helm-install.sh"
 	#!/usr/bin/env bash
 	cd "${DIR}"/../chart/
-	helm install ./polykube --set image.registry="${REGISTRY}",image.tag="${VERSION}",nameOverride="${NAMEOVERRIDE}",image.username="${CLIENT_ID}",image.password="${CLIENT_SECRET}"""$
+	helm install ./polykube --set image.registry="${REGISTRY}",image.tag="${VERSION}",nameOverride="${NAMEOVERRIDE}",image.username="${CLIENT_ID}",image.password="${CLIENT_SECRET}"
 EOF
 chmod +x "${WORKDIR}/helm-install.sh"
 
