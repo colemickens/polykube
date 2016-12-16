@@ -7,7 +7,7 @@ using Api.ContractsV1;
 namespace Api.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("/sha256")]
+    [Route("api/sha256")]
     public class Sha256Controller
     {
         private ILogger logger;

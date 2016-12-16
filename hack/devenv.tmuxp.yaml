@@ -33,6 +33,6 @@ windows:
     - cd /home/cole/code/colemickens/polykube/polykube-aspnet-api-nginx
     - make instance
   - shell_command:
-    - cd /home/cole/code/colemickens/polykube/polykube-postgres
+    - cd /home/cole/code/colemickens/polykube/polykube-mssql
     - make instance
-  window_name: ng-pg-redis
+  window_name: nginx-sql-redis

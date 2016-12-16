@@ -8,15 +8,15 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
   annotations:
     kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: "nginx"
     stable.k8s.psg.io/kcm.enabled: "true"
-    stable.k8s.psg.io/kcm.enabled: "http"
-    stable.k8s.psg.io/kcm.enabled: "admin@polykube.io"
+    stable.k8s.psg.io/kcm.provider: "http"
+    stable.k8s.psg.io/kcm.email: "{{ .Values.adminEmail }}"
 spec:
   tls:
-  - hosts:
-    - api.{{ .Values.domain }}
+  - secretName: {{ template "name" }}-tls
+    hosts:
     - {{ .Values.domain }}
-    secretName: {{ template "name" }}-tls
   rules:
   - host: {{ .Values.domain }}
     http:
@@ -25,10 +25,11 @@ spec:
         backend:
           serviceName: frontend
           servicePort: 80
-  - host: api.{{ .Values.domain }}
-    http:
-      paths:
-      - path: /
+      - path: /api
         backend:
           serviceName: aspnet-api
+          servicePort: 80
+      - path: /.well-known/acme-challenge
+        backend:
+          serviceName: kube-cert-manager
           servicePort: 80

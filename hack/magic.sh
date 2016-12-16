@@ -64,8 +64,8 @@ az login --service-principal \
 az account set --subscription="${SUBSCRIPTION_ID}"
 
 # Create resource group, if it doesn't exist
-az resource group show --name="${RESOURCE_GROUP}" \
-|| az resource group create \
+az group show --name="${RESOURCE_GROUP}" \
+|| az group create \
 	--name="${RESOURCE_GROUP}" \
 	--location="${LOCATION}"
 
@@ -115,23 +115,53 @@ docker login \
 
 # Make sure tiller is running
 kubectl get deployment tiller-deploy --namespace kube-system \
-|| (helm init && sleep 20)
+|| (helm init && sleep 15)
 
-# doesmt work, it converts VERSION to exponent-itized int
-#export HELM_VALS="image.registry=${REGISTRY},image.tag=${VERSION},nameOverride=${NAMEOVERRIDE},image.username=${CLIENT_ID},image.password=${CLIENT_SECRET}"
-
-rm -f "${WORKDIR}/helm-install.sh"
-cat <<- EOF > "${WORKDIR}/helm-install.sh"
-	#!/usr/bin/env bash
-	cd "${DIR}"/../chart/
-	helm install ./polykube --set image.registry="${REGISTRY}",image.tag="${VERSION}",nameOverride="${NAMEOVERRIDE}",image.username="${CLIENT_ID}",image.password="${CLIENT_SECRET}"
+cat <<-EOF > "${WORKDIR}/values.yaml"
+	image:
+	  registry: "${REGISTRY}"
+	  tag: "${VERSION}"
+	  username: "${CLIENT_ID}"
+	  password: "${CLIENT_SECRET}"
+	domain: "${DOMAIN}"
+	nameOverride: "${NAMEOVERRIDE}"
 EOF
-chmod +x "${WORKDIR}/helm-install.sh"
 
-"${WORKDIR}/helm-install.sh"
+HELM_RELEASE="polykube-release0"
+if ! helm get "${HELM_RELEASE}" &>/dev/null ; then
+	helm install "${DIR}/../chart/polykube" --name "${HELM_RELEASE}" --values "${WORKDIR}/values.yaml"
+else
+	helm upgrade "${HELM_RELEASE}" "${DIR}/../chart/polykube" --values "${WORKDIR}/values.yaml"
+fi
 
-# TODO:
-# wait on the service ip
-# set it in cloudflare
-#  this is in the oldmaster branch
+# TODO: parameterize the project name here
+external_ip=""
+while true; do
+	external_ip=$(kubectl get svc --namespace polykube nginx-ingress --template="{{range .status.loadBalancer.ingress}}{{.ip}}{{end}}")
+	[[ ! -z "${external_ip}" ]] && break
+	sleep 10
+done
 
+if [[ "${DNS_RESOURCE_GROUP:-}" != "" ]]; then
+	az network dns record-set delete \
+		--resource-group="${DNS_RESOURCE_GROUP}" \
+		--zone-name="${DNS_ZONE_NAME}" \
+		--type='A' \
+		--name="${DNS_RECORD_SET_NAME}" \
+			|| true
+
+	az network dns record-set create \
+		--resource-group="${DNS_RESOURCE_GROUP}" \
+		--zone-name="${DNS_ZONE_NAME}" \
+		--type='A' \
+		--ttl=120 \
+		--name="${DNS_RECORD_SET_NAME}"
+
+	az network dns record a add \
+		--resource-group="${DNS_RESOURCE_GROUP}" \
+		--zone-name="${DNS_ZONE_NAME}" \
+		--record-set-name="${DNS_RECORD_SET_NAME}" \
+		--ipv4-address="${external_ip}"
+fi
+
+echo "https://${DOMAIN}"

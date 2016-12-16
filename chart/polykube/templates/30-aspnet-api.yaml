@@ -35,20 +35,18 @@ spec:
             secretKeyRef:
               name: redis
               key: password
-        - name: DATABASE_DRIVER
-          value: 'postgres'
         - name: DATABASE_NAME
           value: 'polykubedb'
-        - name: POSTGRES_HOST
-          value: 'postgres'
-        - name: POSTGRES_PORT
+        - name: MSSQL_HOST
+          value: 'mssql'
+        - name: MSSQL_PORT
           value: '5432'
-        - name: POSTGRES_USERNAME
-          value: 'postgres'
-        - name: POSTGRES_PASSWORD
+        - name: MSSQL_USERNAME
+          value: 'SA'
+        - name: MSSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: postgres
+              name: mssql
               key: password
         ports:
         - containerPort: 8000

@@ -3,11 +3,7 @@
 set -eux
 
 cd polykube-frontend
-npm install
-ng build -prod
+yarn
+npm run build
 rm -rf ../../dist
-pwd
-ls -la .
-ls -la ..
-ls -la ../..
 cp -a dist ../../dist/

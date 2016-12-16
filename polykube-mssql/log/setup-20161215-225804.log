@@ -1,0 +1,66 @@
+This is an evaluation version.  There are [148] days left in the evaluation period.
+2016-12-15 22:58:06.78 Server      Setup step is copying system data file 'C:\templatedata\master.mdf' to 'C:\var\opt\mssql\data\master.mdf'.
+2016-12-15 22:58:06.83 Server      Setup step is copying system data file 'C:\templatedata\mastlog.ldf' to 'C:\var\opt\mssql\data\mastlog.ldf'.
+2016-12-15 22:58:06.84 Server      Setup step is copying system data file 'C:\templatedata\model.mdf' to 'C:\var\opt\mssql\data\model.mdf'.
+2016-12-15 22:58:06.85 Server      Setup step is copying system data file 'C:\templatedata\modellog.ldf' to 'C:\var\opt\mssql\data\modellog.ldf'.
+2016-12-15 22:58:06.86 Server      Setup step is copying system data file 'C:\templatedata\msdbdata.mdf' to 'C:\var\opt\mssql\data\msdbdata.mdf'.
+2016-12-15 22:58:06.87 Server      Setup step is copying system data file 'C:\templatedata\msdblog.ldf' to 'C:\var\opt\mssql\data\msdblog.ldf'.
+2016-12-15 22:58:06.92 Server      Microsoft SQL Server vNext (CTP1) - 14.0.1.246 (X64) 
+	Nov  1 2016 23:24:39 
+	Copyright (c) Microsoft Corporation
+	on Linux (Ubuntu 15.10)
+2016-12-15 22:58:06.92 Server      UTC adjustment: 0:00
+2016-12-15 22:58:06.92 Server      (c) Microsoft Corporation.
+2016-12-15 22:58:06.92 Server      All rights reserved.
+2016-12-15 22:58:06.92 Server      Server process ID is 4116.
+2016-12-15 22:58:06.92 Server      Logging SQL Server messages in file 'C:\var\opt\mssql\log\errorlog'.
+2016-12-15 22:58:06.92 Server      Registry startup parameters: 
+	 -d C:\var\opt\mssql\data\master.mdf
+	 -l C:\var\opt\mssql\data\mastlog.ldf
+	 -e C:\var\opt\mssql\log\errorlog
+2016-12-15 22:58:06.92 Server      Command Line Startup Parameters:
+	 --setup
+	 --sa-password
+2016-12-15 22:58:06.94 Server      SQL Server detected 1 sockets with 16 cores per socket and 16 logical processors per socket, 16 total logical processors; using 16 logical processors based on SQL Server licensing. This is an informational message; no user action is required.
+2016-12-15 22:58:06.94 Server      SQL Server is starting at normal priority base (=7). This is an informational message only. No user action is required.
+2016-12-15 22:58:06.94 Server      Detected 25736 MB of RAM. This is an informational message; no user action is required.
+2016-12-15 22:58:06.94 Server      Using conventional memory in the memory manager.
+2016-12-15 22:58:06.94 Server      Large Page Allocated: 32MB 
+2016-12-15 22:58:07.00 Server      Machine supports memory error recovery. SQL memory protection is enabled to recover from memory corruption.
+2016-12-15 22:58:07.07 Server      Default collation: SQL_Latin1_General_CP1_CI_AS (us_english 1033)
+2016-12-15 22:58:07.07 Server      Automatic soft-NUMA was enabled because SQL Server has detected hardware NUMA nodes with greater than 8 physical cores.
+2016-12-15 22:58:07.13 Server      Buffer pool extension is already disabled. No action is necessary. 
+2016-12-15 22:58:07.21 Server      Perfmon counters for resource governor pools and groups failed to initialize and are disabled.
+2016-12-15 22:58:07.23 Server      InitializeExternalUserGroupSid failed. Implied authentication will be disabled.
+2016-12-15 22:58:07.23 Server      Implied authentication manager initialization failed. Implied authentication will be disabled.
+2016-12-15 22:58:07.29 Server      Node configuration: node 0: CPU mask: 0x00000000000000ff:0 Active CPU mask: 0x00000000000000ff:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.
+2016-12-15 22:58:07.30 Server      Node configuration: node 1: CPU mask: 0x000000000000ff00:0 Active CPU mask: 0x000000000000ff00:0. This message provides a description of the NUMA configuration for this computer. This is an informational message only. No user action is required.
+2016-12-15 22:58:07.30 Server      Using dynamic lock allocation.  Initial allocation of 2500 Lock blocks and 5000 Lock Owner blocks per node.  This is an informational message only.  No user action is required.
+2016-12-15 22:58:07.30 Server      Lock partitioning is enabled.  This is an informational message only. No user action is required.
+2016-12-15 22:58:07.30 Server      Database Instant File Initialization: enabled. For security and performance considerations see the topic 'Database Instant File Initialization' in SQL Server Books Online. This is an informational message only. No user action is required.
+2016-12-15 22:58:07.32 Server      Database Mirroring Transport is disabled in the endpoint configuration.
+2016-12-15 22:58:07.32 Server      Query Store settings initialized with enabled = 1, 
+2016-12-15 22:58:07.32 spid5s      Warning ******************
+2016-12-15 22:58:07.32 spid5s      SQL Server started in single-user mode. This an informational message only. No user action is required.
+2016-12-15 22:58:07.34 spid5s      Starting up database 'master'.
+2016-12-15 22:58:07.34 Server      In-Memory OLTP initialized on standard machine.
+2016-12-15 22:58:07.38 Server      Software Usage Metrics is disabled.
+2016-12-15 22:58:07.47 spid5s      The tail of the log for database master is being rewritten to match the new sector size of 4096 bytes.  512 bytes at offset 413184 in file C:\var\opt\mssql\data\mastlog.ldf will be written.
+2016-12-15 22:58:07.58 spid5s      Converting database 'master' from version 855 to the current version 856.
+2016-12-15 22:58:07.58 spid5s      Database 'master' running the upgrade step from version 855 to version 856.
+2016-12-15 22:58:07.88 spid5s      SQL Server Audit is starting the audits. This is an informational message. No user action is required.
+2016-12-15 22:58:07.88 spid5s      SQL Server Audit has started the audits. This is an informational message. No user action is required.
+2016-12-15 22:58:07.93 spid5s      SQL Trace ID 1 was started by login "sa".
+2016-12-15 22:58:07.95 spid5s      Server name is 'azdev'. This is an informational message only. No user action is required.
+2016-12-15 22:58:07.97 spid5s      Starting up database 'msdb'.
+2016-12-15 22:58:07.97 spid7s      Starting up database 'mssqlsystemresource'.
+2016-12-15 22:58:07.98 spid7s      The resource database build version is 14.00.1. This is an informational message only. No user action is required.
+2016-12-15 22:58:07.99 spid7s      Starting up database 'model'.
+2016-12-15 22:58:08.01 spid19s     Server setup is starting
+2016-12-15 22:58:08.01 spid19s     Error: 33064, Severity: 16, State: 2.
+2016-12-15 22:58:08.01 spid19s     Password validation failed. The password does not meet SQL Server password policy requirements because it is not complex enough. The password must be at least 8 characters long and contain characters from three of the following five sets: Uppercase letters, Lowercase letters, Base 10 digits, Non-Alphanumeric characters, or unicode characters that are categorized as alphabetic characters, but are not uppercase or lowercase.
+2016-12-15 22:58:08.03 spid19s     An error occurred while setting the server administrator (SA) password: error 33064, severity 16, state 2.
+2016-12-15 22:58:08.03 spid19s     An error occurred during server setup. See previous errors for more information.
+2016-12-15 22:58:08.03 spid19s     SQL Server shutdown has been initiated
+2016-12-15 22:58:08.03 spid19s     SQL Trace was stopped due to server shutdown. Trace ID = '1'. This is an informational message only; no user action is required.
+

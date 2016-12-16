@@ -8,7 +8,8 @@ image:
   registry: docker.io/colemickens
   tag: stable
 domain: polykube.io
+adminEmail: 'cole.mickens@gmail.com'
 #todo fix need for this
 nameOverride: polykube
 redisPassword: abc123
-postgresPassword: abc123
+databasePassword: SequelP@ssw0rd

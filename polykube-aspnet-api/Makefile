@@ -16,11 +16,11 @@ devenv:
 		--env=REDIS_HOST=127.0.0.1 \
 		--env=REDIS_PORT=6379 \
 		--env=REDIS_PASSWORD=redis \
-		--env=POSTGRES_HOST=127.0.0.1 \
-		--env=POSTGRES_PORT=5432 \
-		--env=POSTGRES_DATABASE_NAME=polykubedb \
-		--env=POSTGRES_USERNAME=postgres \
-		--env=POSTGRES_PASSWORD=postgres \
+		--env=MSSQL_HOST=127.0.0.1 \
+		--env=MSSQL_PORT=1433 \
+		--env=MSSQL_DATABASE_NAME=polykubedb \
+		--env=MSSQL_USERNAME=sa \
+		--env=MSSQL_PASSWORD='SequelP@ssw0rd' \
 		-v $(CURDIR)/source:/$(PROJECT)/source \
 		-v $(CURDIR)/.nuget:/root/.nuget \
 			$(IMAGE_DEVENV) bash -c "./build.sh && ./run.sh; bash" \

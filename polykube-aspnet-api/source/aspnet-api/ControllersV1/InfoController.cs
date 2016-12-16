@@ -7,7 +7,7 @@ using Api.ContractsV1;
 namespace Api.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("/info")]
+    [Route("api/info")]
     public class InfoController
     {
         private ILogger logger;

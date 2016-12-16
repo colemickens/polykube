@@ -67,22 +67,25 @@ namespace Api
         private DbContextOptionsBuilder configureDatabase(DbContextOptionsBuilder options)
         {
             try {
-                var host = this.Configuration["postgres_host"];
-                var port = this.Configuration["postgres_port"];
+                var host = this.Configuration["mssql_host"];
+                var port = this.Configuration["mssql_port"];
                 var dbname = this.Configuration["database_name"];
-                var username = this.Configuration["postgres_username"];
-                var password = this.Configuration["postgres_password"];
+                var username = this.Configuration["mssql_username"];
+                var password = this.Configuration["mssql_password"];
 
-                var connectionString = $"server={host};port={port};user id={username};password={password};database={dbname}";
-                Console.WriteLine($"postgres connstring: {connectionString}");
+                //var connectionString = $"server={host};port={port};user id={username};password={password};database={dbname}";
+                var connectionString = $"Server={host},{port};Database={dbname};User Id={username};Password={password};";
+                Console.WriteLine($"mssql connstring: {connectionString}");
 
-                var npgsql = options.UseNpgsql(connectionString);
+				//var npgsql = options.UseNpgsql(connectionString);
+				var mssql = options.UseSqlServer(connectionString);
 
-                Console.WriteLine("POSTGRES: Connected!");
-                return npgsql;
+                Console.WriteLine("MSSQL: Connected!");
+                //return npgsql;
+                return mssql;
             } catch(Exception e) {
-                Console.WriteLine("POSTGRES: Failed to connect.");
-                Console.WriteLine("POSTGRES: Exception: {0}", e);
+                Console.WriteLine("MSSQL: Failed to connect.");
+                Console.WriteLine("MSSQL: Exception: {0}", e);
                 return null;
             }
         }

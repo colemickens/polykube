@@ -10,9 +10,10 @@ versions:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
+  name: 'kube-cert-manager'
+  namespace: {{ template "name" }}
   labels:
     app: 'kube-cert-manager'
-  name: 'kube-cert-manager'
 spec:
   replicas: 1
   template:
@@ -25,19 +26,33 @@ spec:
         - name: kube-cert-manager
           image: palmstonegames/kube-cert-manager:0.3.1
           args:
-            - "-data-dir=/var/lib/cert-manager"
-            - "-acme-url=https://acme-staging.api.letsencrypt.org/directory"
+            - "-data-dir=/var/lib/cert-manager" 
+            #- "-acme-url=https://acme-staging.api.letsencrypt.org/directory"
             # NOTE: the URL above points to the staging server, where you won't get real certs.
             # Uncomment the line below to use the production LetsEncrypt server:
-            #- "-acme-url=https://acme.api.letsencrypt.org/directory"
+            - "-acme-url=https://acme-v01.api.letsencrypt.org/directory"
             #volumeMounts:
             #- name: data
             #  mountPath: /var/lib/cert-manager
         - name: kubectl-proxy
           image: palmstonegames/kubectl-proxy:1.4.0
-            #volumes:
-            #- name: "data"
-            #emptyDir: {}
-          #gcePersistentDisk:
-          #  pdName: kube-cert-manager
-          #fsType: ext4
+      #volumes:
+      #- name: "data"
+      #  emptyDir: {}
+      #  gcePersistentDisk:
+      #    pdName: kube-cert-manager
+      #    fsType: ext4
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "kube-cert-manager"
+  namespace: "{{ template "name" }}"
+spec:
+  ports:
+  - port: 80
+    name: http
+  - port: 443
+    name: https
+  selector:
+    app: kube-cert-manager

@@ -1,22 +1,15 @@
 FROM buildpack-deps:xenial-scm
 
-RUN curl -sfL https://deb.nodesource.com/setup_6.x | bash -
-RUN apt-get update -qq \
+RUN apt-get update -qq && apt-get install apt-transport-https && rm -rf /var/lib/apt/lists/*
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+	&& echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+	&& curl -sfL https://deb.nodesource.com/setup_6.x | bash - \
+	&& apt-get install -qqy yarn \
 	&& apt-get install -qqy nodejs build-essential autoconf automake python-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
-### workaround bug that breaks watchman installed via npm
-#RUN bash -c "\
-#	git clone https://github.com/facebook/watchman.git; \
-#	cd watchman; \
-#	git checkout v4.5.0; \
-#	./autogen.sh; \
-#	./configure; \
-#	make; \
-#	make install;"
-
-RUN npm install -g angular-cli
 RUN npm install -g npm-check-updates
+RUN yarn global add vue-cli
 
 ADD . /polykube-frontend/source
 WORKDIR /polykube-frontend/source

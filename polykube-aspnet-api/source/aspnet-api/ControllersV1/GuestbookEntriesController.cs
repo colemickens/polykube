@@ -14,7 +14,7 @@ using Api.Models;
 namespace Api.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("/guestbookentries")]
+    [Route("api/guestbookentries")]
     public class GuestbookEntryController
     {
         private DataContext dataContext;
