@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Core;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,20 +40,35 @@ namespace Api
             services.AddOptions();
 
             services.AddSingleton<IDatabase>((IServiceCollection) => configureRedis());
-            services.AddDbContext<DataContext>(options => configureDatabase(options));
-            //services.AddMvcCore().AddJsonFormatters();
+			switch (this.Configuration["db_driver"]) {
+				case "sqlite":
+            		services.AddDbContext<DataContext>(options => configureSqlite(options));
+					break;
+				case "postgres":
+					break;
+            		services.AddDbContext<DataContext>(options => configureSqlite(options));
+				case "mssql":
+            		services.AddDbContext<DataContext>(options => configureSqlite(options));
+					break;
+				default:
+					throw new NotSupportedOperation("must specify a valid db_driver")
+			}
+
+            //services.AddDbContext<DataContext>(options => configurePostgres(options));
+            //services.AddDbContext<DataContext>(options => configureMssql(options));
             services.AddMvc();
-            //services.AddApiVersioning(o => o.AssumeDefaultVersionWhenUnspecified = false);
             services.AddApiVersioning();
             services.AddCors();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, DataContext dataContext/*, IDatabase redisDb*/)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, DataContext dataContext, IDatabase redisDb)
         {
-            dataContext.Database.EnsureCreatedAsync().Wait();
+        	Console.WriteLine($"DB: EnsureCreatedAsync()-ing");
+            dataContext.Database.EnsureCreated();
+        	Console.WriteLine($"DB: EnsureCreatedAsync()-d");
 
             if (env.IsDevelopment()) {
-                loggerFactory.AddDebug(LogLevel.Information);
+                loggerFactory.AddConsole(LogLevel.Debug);
                 app.UseDeveloperExceptionPage();
                 app.UseStatusCodePages();
                 app.UseDatabaseErrorPage();
@@ -64,7 +80,64 @@ namespace Api
             app.UseMvc();
         }
 
-        private DbContextOptionsBuilder configureDatabase(DbContextOptionsBuilder options)
+        private DbContextOptionsBuilder configurePostgres(DbContextOptionsBuilder options)
+		{
+            try {
+                var host = this.Configuration["mssql_host"];
+                var port = this.Configuration["mssql_port"];
+                var dbname = this.Configuration["database_name"];
+                var username = this.Configuration["mssql_username"];
+                var password = this.Configuration["mssql_password"];
+
+                //var connectionString = $"server={host};port={port};user id={username};password={password};database={dbname}";
+                var connectionString = $"Server={host},{port};Database={dbname};User Id={username};Password={password};";
+                Console.WriteLine($"MSSQL connstring: {connectionString}");
+
+				//var npgsql = options.UseNpgsql(connectionString);
+				//var mssql = options.UseSqlServer(connectionString);
+	            var connection = new SqliteConnection("DataSource=:memory:");
+				var sqlite = options.UseSqlite(connection);
+
+                Console.WriteLine("MSSQL: Connected!");
+                //return npgsql;
+                //return mssql;
+				return sqlite;
+            } catch(Exception e) {
+                Console.WriteLine("MSSQL: Failed to connect.");
+                Console.WriteLine("MSSQL: Exception: {0}", e);
+                return null;
+            }
+		}
+        private DbContextOptionsBuilder configureSqlite(DbContextOptionsBuilder options)
+		{
+            try {
+                var host = this.Configuration["mssql_host"];
+                var port = this.Configuration["mssql_port"];
+                var dbname = this.Configuration["database_name"];
+                var username = this.Configuration["mssql_username"];
+                var password = this.Configuration["mssql_password"];
+
+                //var connectionString = $"server={host};port={port};user id={username};password={password};database={dbname}";
+                var connectionString = $"Server={host},{port};Database={dbname};User Id={username};Password={password};";
+                Console.WriteLine($"MSSQL connstring: {connectionString}");
+
+				//var npgsql = options.UseNpgsql(connectionString);
+				//var mssql = options.UseSqlServer(connectionString);
+	            var connection = new SqliteConnection("DataSource=:memory:");
+				var sqlite = options.UseSqlite(connection);
+
+                Console.WriteLine("MSSQL: Connected!");
+                //return npgsql;
+                //return mssql;
+				return sqlite;
+            } catch(Exception e) {
+                Console.WriteLine("MSSQL: Failed to connect.");
+                Console.WriteLine("MSSQL: Exception: {0}", e);
+                return null;
+            }
+		}
+
+        private DbContextOptionsBuilder configureMssql(DbContextOptionsBuilder options)
         {
             try {
                 var host = this.Configuration["mssql_host"];
@@ -75,14 +148,17 @@ namespace Api
 
                 //var connectionString = $"server={host};port={port};user id={username};password={password};database={dbname}";
                 var connectionString = $"Server={host},{port};Database={dbname};User Id={username};Password={password};";
-                Console.WriteLine($"mssql connstring: {connectionString}");
+                Console.WriteLine($"MSSQL connstring: {connectionString}");
 
 				//var npgsql = options.UseNpgsql(connectionString);
-				var mssql = options.UseSqlServer(connectionString);
+				//var mssql = options.UseSqlServer(connectionString);
+	            var connection = new SqliteConnection("DataSource=:memory:");
+				var sqlite = options.UseSqlite(connection);
 
                 Console.WriteLine("MSSQL: Connected!");
                 //return npgsql;
-                return mssql;
+                //return mssql;
+				return sqlite;
             } catch(Exception e) {
                 Console.WriteLine("MSSQL: Failed to connect.");
                 Console.WriteLine("MSSQL: Exception: {0}", e);

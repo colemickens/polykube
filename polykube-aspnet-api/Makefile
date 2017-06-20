@@ -12,6 +12,7 @@ IMAGE_FINAL = $(REGISTRY)/$(PROJECT):$(VERSION)
 devenv:
 	docker build -t $(IMAGE_DEVENV) ./source
 	docker run -it --net=host \
+		--env=ASPNETCORE_ENVIRONMENT=Development \
 		--env=LISTEN_PORT=9080 \
 		--env=REDIS_HOST=127.0.0.1 \
 		--env=REDIS_PORT=6379 \

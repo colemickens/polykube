@@ -22,6 +22,7 @@ namespace Api.Controllers
 
         public GuestbookEntryController(ILoggerFactory loggerFactory, DataContext dataContext)
         {
+            dataContext.Database.EnsureCreatedAsync().Wait();
             this.logger = loggerFactory.CreateLogger(nameof(GuestbookEntryController));
             this.dataContext = dataContext;
         }
